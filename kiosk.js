@@ -16,7 +16,7 @@
   var KEY = 'jetinno.kiosk.v2';
   /* v13 · visual demo: the shopping screen renders 30 product cards, repeating
      catalogue artwork when there are fewer than 30 unique drinks. */
-  var GRID30 = (SCREEN === '04-shopping');
+  var GRID30 = (SCREEN === '04-shopping' || SCREEN === '05-custom');
   var GRID_COUNT = 30, GRID30_H = 0;
   var CART_MAX = 2; /* v7 · two drinks per order */
   var I18N = window.KIOSK_I18N;
@@ -445,8 +445,8 @@
       [110, 1685, 860, 130, 'pay']
     ],
     '11-card': [
-      [0, 0, 1080, 1920, 'finishPay'], [755, 65, 140, 75, 'lang'],
-      [910, 65, 140, 75, 'help']
+      /* v14 · language / Help are real DOM buttons in the shared header. */
+      [0, 0, 1080, 1920, 'finishPay']
     ],
     '15-wrong': [
       [340, 700, 400, 400, 'cycleError'],
@@ -460,7 +460,7 @@
       [60, 1785, 960, 120, 'goHome']
     ],
     '19-order-confirm': [
-      [45, 65, 90, 80, 'cart'],
+      [45, 65, 90, 80, 'payBack'],
       [300, 1180, 480, 250, 'qrPicker'],
       [70, 1415, 190, 170, 'method', 'Card'],
       [265, 1415, 190, 170, 'method', 'Tap'],
@@ -553,6 +553,9 @@
     bump();
   }
   function closeDrawer() {
+    /* v14 · if a stale 06-cart URL is ever reached, closing the sheet
+       returns to the canonical 04-shopping screen. */
+    if (SCREEN === '06-cart') { go('04-shopping'); return; }
     if (!DRAWER_EL) return;
     drawerOpen = false;
     DRAWER_EL.classList.remove('on');
@@ -582,7 +585,9 @@
 
   /* ---------- single-language rendering ---------- */
   function renderProductNames() {
-    var slots = (SCREEN === '05-custom') ? CATALOG : listFor(state.category);
+    /* v14 · the generated grid always follows the active category list;
+       the modal title is handled separately by applyModalProduct(). */
+    var slots = listFor(state.category);
     /* v13 · the 30-card grid is emitted in DOM order, but the original Figma
        artboard interleaves its nine cards (0,2,1 / 3,5,4 / 6,8,7). Always
        honour the explicit slot index when one is present. */
@@ -636,7 +641,7 @@
        sheet says "Low". The customise panel is now fully schema-driven and
        localised, so just repaint the adaptive labels for the active product. */
     paintOptionLabels();
-    if (SCREEN === '04-shopping') buildCatTabs();
+    if (GRID30) buildCatTabs();
     if (SCREEN === '15-wrong') applyError(state.errorType);
     if (SCREEN === '17-making' && !FREEZE) { buildBrew(); paintBrew(state.brewStage || 0); }
     if (SCREEN === '01-home' || SCREEN === '02-lang') applySlide();
@@ -931,7 +936,9 @@
 
   /* ---------- product catalog rendering ---------- */
   function applySlots(list) {
-    if (!DRAWER) return;
+    /* v14 · the 30-card grid also exists on 05-custom as the modal's
+       background, so it needs its artwork even though that page has no drawer. */
+    if (!DRAWER && !GRID30) return;
     var imgs = document.querySelectorAll('.screen [data-slot]');
     var hits = document.querySelectorAll('#k-layer .k-hit[data-act="product"]');
     var i, p, s;
@@ -985,7 +992,7 @@
      carry real click listeners (the old coordinate hit-zones were removed),
      which is required because a scrollable bar cannot use fixed coordinates. */
   function buildCatTabs() {
-    if (SCREEN !== '04-shopping') return;
+    if (!GRID30) return;
     var bar = document.getElementById('k-catbar');
     var row = document.getElementById('k-catrow');
     if (!bar || !row) return;
@@ -1170,7 +1177,7 @@
 
   /* ---------- initial product state ---------- */
   buildGrid30();
-  if (DRAWER && (GRID30 || state.category !== 'CLASSICS')) applySlots(listFor(state.category));
+  if (GRID30 || (DRAWER && state.category !== 'CLASSICS')) applySlots(listFor(state.category));
   if (SCREEN === '05-custom') applyModalProduct();
   if (DRAWER || SCREEN === '19-order-confirm') applyRows();
 
@@ -1423,6 +1430,62 @@
     state.flashPending = true; save(); refreshCart(); syncCartBar(); flashCart();
     return true;
   }
+  /* ---------- v14 · shared header + back-to-home confirmation ----------
+     The payment screens used to carry three different ad-hoc header layouts.
+     One DOM header (centred brand, language / Help pills, back arrow) now
+     serves 11-card / 16-pay / 19-order-confirm; 19 keeps its Figma arrow. */
+  var HEADER_PAGES = ['11-card', '16-pay', '19-order-confirm'];
+  var CONFIRM_TITLE = '您确定返回主页吗？';
+  var CONFIRM_BODY = '您的购物车和个性化配置将自动清空。';
+
+  function buildSharedHeader() {
+    if (!L || HEADER_PAGES.indexOf(SCREEN) < 0) return;
+    var h = document.createElement('div');
+    h.className = 'k-v14-head';
+    h.innerHTML =
+      (SCREEN === '19-order-confirm' ? '' :
+        '<button class="k-v14-back" type="button" aria-label="Back">←</button>') +
+      '<div class="k-v14-logo" data-kc="brand"></div>' +
+      '<button class="k-v14-pill" type="button" data-hact="lang">English</button>' +
+      '<button class="k-v14-pill" type="button" data-hact="help">Help</button>';
+    L.appendChild(h);
+    h.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-hact],.k-v14-back') : null;
+      if (!b) return;
+      e.stopPropagation();
+      if (b.classList.contains('k-v14-back')) openHomeConfirm();
+      else act(b.getAttribute('data-hact'));
+    });
+  }
+
+  function openHomeConfirm() {
+    var d = $('k-home-confirm');
+    if (!d) {
+      d = document.createElement('div');
+      d.id = 'k-home-confirm';
+      d.className = 'k-v14-confirm';
+      d.innerHTML = '<div class="k-v14-confirm-card">' +
+        '<div class="k-v14-confirm-title">' + CONFIRM_TITLE + '</div>' +
+        '<div class="k-v14-confirm-body">' + CONFIRM_BODY + '</div>' +
+        '<div class="k-v14-confirm-actions">' +
+        '<button type="button" data-cact="cancel">取消</button>' +
+        '<button type="button" data-cact="confirm">确定返回</button>' +
+        '</div></div>';
+      (L || document.body).appendChild(d);
+      d.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('[data-cact]') : null;
+        if (!b) return;
+        e.stopPropagation();
+        if (b.getAttribute('data-cact') === 'confirm') { closeHomeConfirm(); goHome(); }
+        else closeHomeConfirm();
+      });
+    }
+    d.classList.add('on');
+  }
+  function closeHomeConfirm() {
+    var d = $('k-home-confirm'); if (d) d.classList.remove('on');
+  }
+
   /* ---------- action dispatcher ---------- */
   function act(a, o, e) {
     switch (a) {
@@ -1469,11 +1532,12 @@
         state.cart.push({ pid: pb.id, name: pb.short, price: unitPriceOf(pb.id, state.custom), qty: 1,
           opts: { pid: pb.id, vals: state.custom.slice() } });
         state.flashPending = true;
-        save(); go('06-cart');
+        save(); go('04-shopping', 'cart=1');
         break;
       }
-      case 'cart': if (DRAWER) openDrawer(); else go('06-cart'); break;
+      case 'cart': if (DRAWER) openDrawer(); else go('04-shopping', 'cart=1'); break;
       case 'cartClose': closeDrawer(); break;
+      case 'payBack': openHomeConfirm(); break;
       case 'qty': {
         var p = String(o).split(':'), idx = +p[0], d = +p[1];
         var item = state.cart[idx]; if (!item) break;
@@ -1673,7 +1737,7 @@
   /* font-display:block means fitText can measure fallback metrics on a cold
      load. Re-apply once the real fonts are ready so sizes are deterministic. */
   if (REFINE && document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { applyI18n(); if (SCREEN === '04-shopping') buildCatTabs(); });
+    document.fonts.ready.then(function () { applyI18n(); if (GRID30) buildCatTabs(); });
   }
   /* ---- v7 boot: flags, cart bar, scroll + Pad gestures, button feedback ---- */
   applyFlags();
@@ -1682,11 +1746,13 @@
   setupScrollGestures();
   setupDrawerGestures();
   setupButtonHover();
+  buildSharedHeader();
   if (state.flashPending) {
     state.flashPending = false; save(); flashCart();
   }
-  /* Direct links to 06-cart.html show the sheet sliding up over the menu. */
-  if (AUTO_DRAWER) {
+  /* v14 · 06-cart.html is a redirect stub. The cart is always the sheet on
+     04-shopping; ?cart=1 (or the legacy data-drawer-open attr) opens it. */
+  if (AUTO_DRAWER || (SCREEN === '04-shopping' && QS.has('cart'))) {
     requestAnimationFrame(function () { requestAnimationFrame(openDrawer); });
     setTimeout(openDrawer, 120);
   }

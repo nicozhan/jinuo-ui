@@ -311,3 +311,80 @@
 .k-catnav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;display:none;align-items:center;justify-content:center;font-size:28px;line-height:1;color:#3A2A1E;background:#FFFDF9;border:1px solid rgba(58,42,30,.12);border-radius:9999px;box-shadow:0 1px 5px rgba(58,42,30,.18);cursor:pointer;z-index:4;user-select:none;-webkit-tap-highlight-color:transparent}
 .k-catnav.k-catprev{left:10px}
 .k-catnav.k-catnext{right:10px}
+
+
+/* ==================== v14 · shared header, centred brand, aligned copy ==== */
+/* (3) brand centred on home / making / ready. Payment screens use the shared
+   DOM header below, whose logo is already centred at (1080-136)/2 = 472. */
+body[data-page="01-home"],
+body[data-page="17-making"],
+body[data-page="18-ready"]{--k-logo-left:472px}
+/* The old ad-hoc header blocks are replaced by .k-v14-head. */
+body[data-page="11-card"] .f31,
+body[data-page="11-card"] .f34,
+body[data-page="19-order-confirm"] .f29{visibility:hidden!important}
+/* 16-pay's first copy line sits at y=115; move the content block down so the
+   shared header (y=66..130) never overlaps it. */
+body[data-page="16-pay"] .f30{top:140px!important;height:1689px!important}
+
+#k-layer .k-v14-head{
+  position:absolute;left:0;top:0;width:1080px;height:140px;
+  pointer-events:none;z-index:60;
+}
+#k-layer .k-v14-head > *{position:absolute;pointer-events:auto}
+#k-layer .k-v14-logo{
+  left:472px;top:66px;width:136px;height:64px;border:0;border-radius:0;
+  background-image:url(../assets/logo.png);
+  background-size:contain;background-position:center;background-repeat:no-repeat;
+}
+#k-layer .k-v14-back{
+  left:45px;top:66px;width:90px;height:64px;border:0;border-radius:9999px;
+  background:#FFFDF9;box-shadow:0 0 0 1px rgba(58,42,30,.15);
+  font:600 28px/1 'Fraunces',Georgia,serif;color:#3A2A1E;cursor:pointer;
+}
+#k-layer .k-v14-pill{
+  top:66px;height:60px;border:0;border-radius:9999px;
+  background:rgba(255,253,249,.94);box-shadow:0 0 0 1px rgba(58,42,30,.10);
+  font:600 24px/60px 'Fraunces',Georgia,serif;color:#3A2A1E;cursor:pointer;
+}
+#k-layer .k-v14-pill[data-hact="lang"]{left:716px;width:160px}
+#k-layer .k-v14-pill[data-hact="help"]{left:888px;width:128px}
+
+/* (4) Back-to-home confirmation dialog */
+#k-layer .k-v14-confirm{
+  position:absolute;left:0;top:0;width:1080px;height:1920px;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(58,42,30,.55);z-index:80;pointer-events:auto;
+}
+#k-layer .k-v14-confirm.on{display:flex}
+#k-layer .k-v14-confirm-card{
+  width:720px;box-sizing:border-box;padding:52px 56px 44px;border-radius:28px;
+  background:#FFFDF9;box-shadow:0 32px 90px rgba(58,42,30,.28);text-align:center;
+}
+#k-layer .k-v14-confirm-title{
+  font:600 40px/1.3 'Noto Serif SC','Fraunces',serif;color:#3A2A1E;
+}
+#k-layer .k-v14-confirm-body{
+  margin-top:20px;font:400 28px/1.6 'Noto Serif SC','Instrument Sans',sans-serif;
+  color:#7C6650;
+}
+#k-layer .k-v14-confirm-actions{margin-top:44px;display:flex;gap:20px}
+#k-layer .k-v14-confirm-actions button{
+  flex:1;height:88px;border:0;border-radius:9999px;cursor:pointer;
+  font:600 28px/1 'Noto Serif SC','Instrument Sans',sans-serif;
+}
+#k-layer .k-v14-confirm-actions [data-cact="cancel"]{background:#F1E9DE;color:#3A2A1E}
+#k-layer .k-v14-confirm-actions [data-cact="confirm"]{background:#A0002D;color:#FFFDF9}
+
+/* (6) making / ready copy aligns with the status bar and payment-success page */
+body[data-page="17-making"] .f33,
+body[data-page="17-making"] .f36,
+body[data-page="18-ready"] .f33,
+body[data-page="18-ready"] .f36{
+  left:0!important;width:952px!important;text-align:left!important;
+}
+
+/* (2) the 30-card menu behind the modal is display-only */
+body[data-page="05-custom"] #k-grid30,
+body[data-page="05-custom"] .k-catbar,
+body[data-page="05-custom"] #k-scroll-root{pointer-events:none!important}

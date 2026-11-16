@@ -1,6 +1,18 @@
 <!doctype html>
 <html lang="zh">
 <head>
+<script>
+/* v14 · The cart is no longer a standalone screen. Any link to 06-cart.html
+   forwards to 04-shopping.html with the bottom sheet already open, so closing
+   the sheet always leaves the user on 04-shopping.html. */
+(function () {
+  var q = location.search.replace(/^\?/, '').split('&').filter(function (x) {
+    return x && !/^cart=/.test(x);
+  });
+  q.push('cart=1');
+  location.replace('04-shopping.html?' + q.join('&'));
+})();
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title data-i18n="Shopping / 商品列表 · Jetinno Coffee Kiosk">Shopping / 商品列表 · Jetinno Coffee Kiosk</title>

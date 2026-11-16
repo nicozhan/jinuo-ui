@@ -56,14 +56,15 @@ code{background:#F6F0E7;border-radius:4px;padding:1px 6px;font-size:12px}
   <p class="lead">基于 Figma 设计稿 <b>Jetinno-coffee-vertical-1022</b> 的 12 屏 1:1 复刻，已接入完整状态机：点击可走通点单全流程，弹窗、数量、支付方式、报错文案与出餐进度均为真实状态变化，空闲计时按设计说明生效，商品图与名称已替换为用户提供的 22 款真实饮品。购物车不再作为独立全屏页，而是从商品列表底部上滑的抽屉，下层商品页保持可见。界面文案本轮先统一为英文（语言框架仍保留 en / fr / zh 字典）。</p>
 <!-- VERSION_NOTE_START -->
 <div style="margin:14px 0;padding:12px 16px;border-radius:12px;background:#F1E9DE;color:#5A4432;font-size:14px;line-height:1.75">
-  <b>版本说明</b> · 当前为 <b>v13 方案 A · 30 商品 · 英文界面版</b>：<br>
-  ① <b>方案 A 已落地</b> —— 二次配置组标题上移到档位上方，轨道由 502 扩至 <b>672 px</b>，按 <code>N = opts.length</code> 等分；坐标由版式 DOM 实测，不再写死。<br>
-  ② <b>价格栏纯英文</b> —— 左边只有 <code>Price</code>，右边只有<b>一个总计</b>（基础价 + 加小料 / 配置加价），不显示 <code>+ CHF 0.60</code> 之类明细、不显示附加件数、不出现中文；标签 Fraunces 20/500、金额 Fraunces 24/400 <code>#A0002D</code>，沿用商品卡价格的全部视觉 token。<br>
-  ③ <b>全站先只做英文</b> —— 12 屏实测 0 处可见中文（<code>tests/audit_v13.py</code> 的 English-only sweep）。<br>
-  ④ <b>商品页显示 30 个产品</b> —— 10 行 × 3 列数据驱动网格，22 款素材循环复用，只做效果展示；分类栏保持横滚且滚动时固定在顶部，网格滚动到末尾显示 <code>END OF MENU</code>。<br>
-  ⑤ <b>Caramel Macchiato 甜度 4 档</b> —— <code>No Sugar / Light / Less Sugar / Regular</code>，其余分组仍 3 档；英文 24 → 20 → 18 px 自适应回退，无遮挡、无省略号。<br>
-  沿用 v12：单价含配置加价、币种全站统一 <code>CHF</code>；沿用 v9：22 款商品 / 5 分类 / 按 <code>kind</code> 自适应二次配置。<br>
-  <b>退回本轮之前</b>：<code>python3 tools/version_manager.py restore v13-pre-planA-30</code>；恢复当前版：<code>python3 tools/version_manager.py restore v13-planA-30-en</code>；回到原始 1:1：<code>python3 tools/rollback_refine.py</code>。
+  <b>版本说明</b> · 当前为 <b>v14 版式与流程修正版</b>（基于 v13 方案 A · 30 商品 · 英文界面）：<br>
+  ① <b>购物车不再是独立页</b> —— <code>06-cart.html</code> 已改为重定向桩；购物车统一是 <code>04-shopping.html</code> 上的底部抽屉，<code>?cart=1</code> 自动展开，旧链接自动跳转，关闭抽屉后停在 <code>04-shopping.html</code>。<br>
+  ② <b>二次配置页背景沿用商品页</b> —— <code>05-custom.html</code> 以 <code>04-shopping.html</code> 为底，叠加原弹窗层；弹窗后是同一套 30 卡网格 / 5 分类 / banner / 顶部栏，不再有旧 9 卡错位版式，背景只读不可点。<br>
+  ③ <b>logo 居中</b> —— 首页、支付页、制作中、制作完成的品牌标记统一水平居中（1080 画布中心 x=472）。<br>
+  ④ <b>支付页返回二次确认</b> —— 弹窗「您确定返回主页吗？您的购物车和个性化配置将自动清空。」；取消留在本页，确认后清空购物车与个性化配置并回首页。<br>
+  ⑤ <b>支付相关页顶部栏统一</b> —— 11-card / 16-pay / 19-order-confirm 共用同一套居中 logo + English / Help 胶囊 + 返回箭头，移除旧的错位白框。<br>
+  ⑥ <b>制作中 / 完成文案左对齐</b> —— 标题与副标题对齐状态栏与支付成功页的同一左边界（x=64）。<br>
+  沿用 v13：方案 A 672 px 弹性栅格、纯英文 <code>Price</code> 单一总计、30 商品、Caramel Macchiato 甜度 4 档；沿用 v12：单价含配置加价、币种全站统一 <code>CHF</code>。<br>
+  <b>回退</b>：<code>python3 tools/version_manager.py restore v14-pre-fixes</code>；恢复当前版：<code>restore v14-cart-sheet-header</code>；回到原始 1:1：<code>python3 tools/rollback_refine.py</code>。验证：<code>tests/audit_v13.py</code> + <code>tests/audit_v14.py</code>。
 </div>
 <!-- VERSION_NOTE_END -->
 
