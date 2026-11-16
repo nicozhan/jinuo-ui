@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="Payment Success / 支付成功 · Jetinno Coffee Kiosk">Payment Success / 支付成功 · Jetinno Coffee Kiosk</title>
+<style>
+@font-face{font-family:'Fraunces';src:url('../assets/fonts/fraunces.woff2') format('woff2');font-weight:400 700;font-display:block}
+@font-face{font-family:'Instrument Sans';src:url('../assets/fonts/instrument-sans.woff2') format('woff2');font-weight:400 700;font-display:block}
+@font-face{font-family:'Noto Serif SC';src:url('../assets/fonts/noto-serif-sc.woff2') format('woff2');font-weight:400 900;font-display:block}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:#DDD6CC;font-family:'Instrument Sans',Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left}
+.screen{position:relative;width:1080px;height:1920px;background:#1A120B;overflow:hidden}
+.tx{display:block;width:100%}
+button,.btn{cursor:pointer}
+
+.f1{position:absolute;left:0px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f2{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#1A120B;}
+.f3{position:absolute;left:0px;top:0px;width:1080.58px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f4{position:absolute;left:0px;top:0px;width:1080.58px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f5{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#1A120B;}
+.f6{position:absolute;left:0.29px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;border-radius:40px;box-shadow:0px 36px 72px -42px rgba(92,67,45,0.260);}
+.f7{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FFFDF9;}
+.f8{position:absolute;left:0px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f9{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FFFDF9;}
+.f10{position:absolute;left:0px;top:0px;width:1080px;height:66.32px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f11{position:absolute;left:64px;top:20px;width:559px;height:24px;box-sizing:border-box;}
+.f12{position:absolute;left:0px;top:0px;width:230px;height:24px;box-sizing:border-box;}
+.f13{position:absolute;left:0px;top:1px;width:230px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f14{position:absolute;left:258px;top:4px;width:1px;height:16px;box-sizing:border-box;}
+.f15{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:rgba(58,42,30,0.150);}
+.f16{position:absolute;left:287px;top:0px;width:272px;height:24px;box-sizing:border-box;}
+.f17{position:absolute;left:0px;top:1px;width:272px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f18{position:absolute;left:865px;top:20px;width:151px;height:24px;box-sizing:border-box;}
+.f19{position:absolute;left:0px;top:0px;width:109px;height:24px;box-sizing:border-box;}
+.f20{position:absolute;left:0px;top:1px;width:109px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f21{position:absolute;left:133px;top:4px;width:18px;height:16px;box-sizing:border-box;}
+.f22{position:absolute;left:0px;top:11px;width:3px;height:5px;box-sizing:border-box;}
+.f23{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f24{position:absolute;left:5px;top:8px;width:3px;height:8px;box-sizing:border-box;}
+.f25{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f26{position:absolute;left:10px;top:5px;width:3px;height:11px;box-sizing:border-box;}
+.f27{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f28{position:absolute;left:15px;top:2px;width:3px;height:14px;box-sizing:border-box;}
+.f29{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f30{position:absolute;left:0px;top:66.32px;width:1080px;height:1763.36px;box-sizing:border-box;}
+.f31{position:absolute;left:64px;top:0px;width:952px;height:246.32px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f32{position:absolute;left:0px;top:48px;width:952px;height:29px;box-sizing:border-box;}
+.f33{position:absolute;left:0px;top:1px;width:305px;height:29px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:19px;font-weight:600;line-height:28.5px;letter-spacing:3.8px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#C07A3E;}
+.f34{position:absolute;left:0px;top:77px;width:952px;height:75px;box-sizing:border-box;}
+.f35{position:absolute;left:0px;top:25px;width:741px;height:51px;box-sizing:border-box;font-family:'Fraunces',Georgia,serif;font-size:48px;font-weight:600;line-height:50.4px;letter-spacing:0px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f36{position:absolute;left:0px;top:152px;width:952px;height:52px;box-sizing:border-box;}
+.f37{position:absolute;left:0px;top:17px;width:437px;height:36px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:32px;font-weight:400;line-height:35.88px;letter-spacing:0px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f38{position:absolute;left:330px;top:246.32px;width:420px;height:420px;box-sizing:border-box;}
+.f39{position:absolute;left:0px;top:150px;width:420px;height:270px;box-sizing:border-box;border-radius:38px;box-shadow:0px 0px 0px 1px rgba(58,42,30,0.080);}
+.f40{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:rgba(251,248,243,0.450);}
+.f41{position:absolute;left:400px;top:666.32px;width:280px;height:280px;box-sizing:border-box;}
+.f42{position:absolute;left:-52px;top:-52px;width:383.99px;height:383.99px;box-sizing:border-box;opacity:0.968;border:1.11px solid rgba(192,122,62,0.120);border-radius:9999px;}
+.f43{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:rgba(192,122,62,0.040);}
+.f44{position:absolute;left:-25.99px;top:-25.99px;width:331.98px;height:331.98px;box-sizing:border-box;opacity:0.616;border:1.11px solid rgba(192,122,62,0.200);border-radius:9999px;}
+.f45{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:rgba(192,122,62,0.070);}
+.f46{position:absolute;left:0px;top:0px;width:280px;height:280px;box-sizing:border-box;border:1.11px solid #DCE3F1;border-radius:9999px;box-shadow:0px 8px 24px 0px rgba(0,0,0,0.050),0px 32px 80px 0px rgba(0,0,0,0.080);}
+.f47{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#F5EEE5;}
+.f48{position:absolute;left:90px;top:101.5px;width:100px;height:77px;display:block;}
+.f49{position:absolute;left:305.5px;top:946.32px;width:469px;height:222px;box-sizing:border-box;}
+.f50{position:absolute;left:-99px;top:90.5px;width:667px;height:46px;box-sizing:border-box;}
+.f51{position:absolute;left:0px;top:1px;width:667px;height:46px;box-sizing:border-box;font-family:'Fraunces',Georgia,serif;font-size:48px;font-weight:600;line-height:45.36px;letter-spacing:0px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f52{position:absolute;left:22.5px;top:136.5px;width:424px;height:51px;box-sizing:border-box;}
+.f53{position:absolute;left:0px;top:17px;width:424px;height:35px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:28px;font-weight:400;line-height:35px;letter-spacing:0px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f54{position:absolute;left:0px;top:1829.68px;width:1080px;height:90.32px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f55{position:absolute;left:288.5px;top:35.32px;width:503px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:20px;font-weight:600;line-height:24px;letter-spacing:1.6px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:rgba(124,102,80,0.700);}
+</style>
+<link rel="stylesheet" href="../kiosk.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../refine.css">
+</head>
+<body data-refine="1" data-page="16-pay">
+<div id="stage"><div class="screen"><div class="f1"><div class="f2"></div><div class="f3"><div class="f4"><div class="f5"></div><div class="f6"><div class="f7"></div><div class="f8"><div class="f9"></div><div class="f10"><div class="f11"><div class="f12"><div class="f13"><span class="tx" data-i18n="MACHINE ID · JAV-08-221" data-kc="status-text">MACHINE ID · JAV-08-221</span></div></div><div class="f14"><div class="f15"></div></div><div class="f16"><div class="f17"><span class="tx" data-i18n="SUPPORT · +86 400 820 2006" data-kc="status-text">SUPPORT · +86 400 820 2006</span></div></div></div><div class="f18"><div class="f19"><div class="f20"><span class="tx" data-i18n="TIME · 14:20" data-kc="status-text">TIME · 14:20</span></div></div><div class="f21"><div class="f22"><div class="f23"></div></div><div class="f24"><div class="f25"></div></div><div class="f26"><div class="f27"></div></div><div class="f28"><div class="f29"></div></div></div></div></div><div class="f30"><div class="f31"><div class="f32"><div class="f33"><span class="tx" data-i18n="PAYMENT / SUCCESSFUL">PAYMENT / SUCCESSFUL</span></div></div><div class="f34"><div class="f35"><span class="tx" data-i18n="Payment completed successfully.">Payment completed successfully.</span></div></div><div class="f36"><div class="f37"><span class="tx" data-i18n="Your payment was successful.">Your payment was successful.</span></div></div></div><div class="f38"><div class="f39"><div class="f40"></div></div></div><div class="f41"><div class="f42"><div class="f43"></div></div><div class="f44"><div class="f45"></div></div><div class="f46"><div class="f47"></div><img class="f48" src="../assets/vec/1-2659.svg" alt="" data-kc="status-illustration"></div></div><div class="f49"><div class="f50"><div class="f51"><span class="tx" data-i18n="Your payment was successful.">Your payment was successful.</span></div></div><div class="f52"><div class="f53"><span class="tx" data-i18n="Your drink is being prepared now.">Your drink is being prepared now.</span></div></div></div></div><div class="f54"><div class="f55"><span class="tx" data-i18n="© 2026 VendSolution. ALL RIGHTS RESERVED.">© 2026 VendSolution. ALL RIGHTS RESERVED.</span></div></div></div></div></div></div></div></div></div>
+<script src="../i18n.js"></script>
+<script src="../kiosk.js" data-screen="16-pay"></script>
+</body>
+</html>

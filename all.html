@@ -1,0 +1,122 @@
+<!doctype html>
+
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jetinno Coffee Kiosk · 全部页面</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F3EFE8;color:#3A2A1E;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft Yahei',sans-serif;padding:48px 5vw 80px}
+header{max-width:1400px;margin:0 auto 36px;border-bottom:1px solid #D9CFBF;padding-bottom:24px}
+h1{font-size:30px;font-weight:650;letter-spacing:-.5px}
+.sub{margin-top:10px;color:#7C6650;font-size:15px;line-height:1.7}
+.kbd{display:inline-block;background:#fff;border:1px solid #D9CFBF;border-radius:5px;padding:1px 7px;font-size:13px;margin:0 2px}
+.grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:26px}
+.card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #E6DDCF;border-radius:14px;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}
+.card:hover{transform:translateY(-4px);box-shadow:0 16px 32px -18px rgba(58,42,30,.45)}
+.thumb{height:300px;background:#EDE7DD;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.thumb img{height:100%;width:auto;max-width:100%;object-fit:contain;display:block}
+.meta{display:flex;align-items:baseline;gap:9px;padding:14px 16px 0}
+.num{color:color:#A08A72;font-size:12px;font-variant-numeric:tabular-nums}
+.en{font-size:15px;font-weight:600}
+.zh{padding:3px 16px 0;font-size:14px;color:#5A4432}
+.desc{padding:7px 16px 16px;font-size:12px;color:#8C7A66;line-height:1.55}
+footer{max-width:1400px;margin:44px auto 0;color:#8C7A66;font-size:13px;line-height:1.8;border-top:1px solid #D9CFBF;padding-top:22px}
+.launch{max-width:1400px;margin:0 auto 32px;background:#3A2A1E;color:#FFFDF9;border-radius:16px;padding:22px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.launch .lt{flex:1;min-width:280px}
+.launch .lt b{font-size:17px;display:block;margin-bottom:4px}
+.launch .lt span{font-size:13px;color:#D8C9B6;line-height:1.6}
+.launch a{display:inline-block;background:#FFFDF9;color:#3A2A1E;text-decoration:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:650;white-space:nowrap}
+.launch a.alt{background:transparent;color:#FFFDF9;border:1px solid #8C7157;font-weight:500}
+.launch a:hover{opacity:.88}
+
+.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:14px;margin:18px 0 8px}
+.pitem{background:#fff;border:1px solid #E6DDCF;border-radius:12px;overflow:hidden;text-align:center;padding-bottom:10px}
+.pitem img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#F7F3EC}
+.pitem b{display:block;font-size:13px;margin-top:8px;padding:0 6px;line-height:1.35}
+.pitem span{display:block;font-size:11px;color:#8C7A66;padding:0 6px;margin-top:3px}
+.catnote{font-size:13px;color:#7C6650;line-height:1.7}
+
+</style>
+</head>
+<body>
+<header>
+<h1>Jetinno Coffee Kiosk · 全部 12 屏</h1>
+<div class="sub">按 Figma 设计稿 <b>Jetinno-coffee-vertical-1022</b> 逐屏复刻，画板 1080 × 1920。商品已替换为用户提供的 16 款真实饮品，点击卡片进入对应页面。<br>
+在任一页面可用 <span class="kbd">←</span> <span class="kbd">→</span> 按流程顺序切换，<span class="kbd">G</span> 返回本页；追加 <span class="kbd">?raw=1</span> 可查看 1:1 原始尺寸。</div>
+</header>
+<div class="launch">
+  <div class="lt"><b>12 屏已接入可交互状态机</b>
+  <span>点击可走通点单全流程：轮播、语言、定制、购物车增减与 Undo、支付方式、9 个二维码、三类报错、出餐进度与空闲自动回首页；商品目录已接入 16 款真实饮品，分类切换会重排商品。界面提供法语、英语、中文三套独立单语文案，按 L 或语言下拉切换。</span></div>
+  <a href="pages/01-home.html?debug=1">▶ 启动完整演示（含控制台）</a>
+  <a class="alt" href="demo.html">交互说明 →</a>
+</div>
+<div class="grid"><a class="card" href="pages/01-home.html">
+<div class="thumb"><img src="preview/01-home.png" alt="01 · Home" loading="lazy"></div>
+<div class="meta"><span class="num">01</span><span class="en">01 · Home</span></div>
+<div class="zh">待机首页</div><div class="desc">轮播 Banner、支付方式、语言与帮助入口</div></a>
+<a class="card" href="pages/02-lang.html">
+<div class="thumb"><img src="preview/02-lang.png" alt="02 · Language" loading="lazy"></div>
+<div class="meta"><span class="num">02</span><span class="en">02 · Language</span></div>
+<div class="zh">语言选择</div><div class="desc">首页语言下拉展开状态</div></a>
+<a class="card" href="pages/03-help.html">
+<div class="thumb"><img src="preview/03-help.png" alt="03 · Help" loading="lazy"></div>
+<div class="meta"><span class="num">03</span><span class="en">03 · Help</span></div>
+<div class="zh">帮助弹窗</div><div class="desc">二维码、电话、邮箱、订单号与机器信息</div></a>
+<a class="card" href="pages/04-shopping.html">
+<div class="thumb"><img src="preview/04-shopping.png" alt="04 · Shopping" loading="lazy"></div>
+<div class="meta"><span class="num">04</span><span class="en">04 · Shopping</span></div>
+<div class="zh">商品列表</div><div class="desc">顶部分类导航与商品卡片网格</div></a>
+<a class="card" href="pages/05-custom.html">
+<div class="thumb"><img src="preview/05-custom.png" alt="05 · Customize" loading="lazy"></div>
+<div class="meta"><span class="num">05</span><span class="en">05 · Customize</span></div>
+<div class="zh">商品定制</div><div class="desc">二次配置弹窗：糖度、冰量、温度等</div></a>
+<a class="card" href="pages/06-cart.html">
+<div class="thumb"><img src="preview/06-cart.png" alt="06 · Cart" loading="lazy"></div>
+<div class="meta"><span class="num">06</span><span class="en">06 · Cart</span></div>
+<div class="zh">购物车抽屉</div><div class="desc">从商品页底部上滑 · 数量增减与金额汇总</div></a>
+<a class="card" href="pages/11-card.html">
+<div class="thumb"><img src="preview/11-card.png" alt="11 · Card Payment" loading="lazy"></div>
+<div class="meta"><span class="num">07</span><span class="en">11 · Card Payment</span></div>
+<div class="zh">刷卡支付</div><div class="desc">POS 终端指引与支持的支付标识</div></a>
+<a class="card" href="pages/15-wrong.html">
+<div class="thumb"><img src="preview/15-wrong.png" alt="15 · Error" loading="lazy"></div>
+<div class="meta"><span class="num">08</span><span class="en">15 · Error</span></div>
+<div class="zh">报错状态</div><div class="desc">支付/机器/网络异常，只换 Icon 与文案</div></a>
+<a class="card" href="pages/16-pay.html">
+<div class="thumb"><img src="preview/16-pay.png" alt="16 · Payment Success" loading="lazy"></div>
+<div class="meta"><span class="num">09</span><span class="en">16 · Payment Success</span></div>
+<div class="zh">支付成功</div><div class="desc">成功状态与自动返回首页</div></a>
+<a class="card" href="pages/17-making.html">
+<div class="thumb"><img src="preview/17-making.png" alt="17 · Preparing" loading="lazy"></div>
+<div class="meta"><span class="num">10</span><span class="en">17 · Preparing</span></div>
+<div class="zh">制作中</div><div class="desc">出餐进度方案：广告图 + 文案</div></a>
+<a class="card" href="pages/18-ready.html">
+<div class="thumb"><img src="preview/18-ready.png" alt="18 · Ready" loading="lazy"></div>
+<div class="meta"><span class="num">11</span><span class="en">18 · Ready</span></div>
+<div class="zh">出杯完成</div><div class="desc">四阶段进度高亮与开始新订单</div></a>
+<a class="card" href="pages/19-order-confirm.html">
+<div class="thumb"><img src="preview/19-order-confirm.png" alt="19 · Order Confirmation" loading="lazy"></div>
+<div class="meta"><span class="num">12</span><span class="en">19 · Order Confirmation</span></div>
+<div class="zh">订单确认支付</div><div class="desc">订单明细、金额汇总与扫码支付</div></a></div>
+<!-- LANG_START -->
+<h2>界面语言 · 三套单语文案</h2>
+<p class="catnote">十二屏界面已实现法语、英语、中文三套独立文案，任意时刻只显示一种语言：静态标题、顶部分类、商品名与标签、定制选项、购物车、支付与报错提示、演示控制台、动态提示与页面标题全部随语言切换，切换结果跨页面保存。语言下拉只有三项，按 <span class="kbd">L</span> 可循环切换；也可用地址参数 <code>?lang=en</code>、<code>?lang=fr</code>、<code>?lang=zh</code> 直接指定。下面三个入口分别以对应语言启动完整演示。</p>
+<div class="langlaunch">
+  <a href="pages/01-home.html?debug=1&amp;lang=en">英语界面 <small>EN</small></a>
+  <a href="pages/01-home.html?debug=1&amp;lang=fr">法语界面 <small>FR</small></a>
+  <a href="pages/01-home.html?debug=1&amp;lang=zh">中文界面 <small>ZH</small></a>
+</div>
+<!-- LANG_END -->
+<!-- PRODUCTS_START -->
+<h2>商品目录 · 16 款真实饮品</h2>
+<p class="catnote">用户提供的 17 张商品图（美式咖啡含大小两版）已统一处理成浅米底卡片图，替换全部占位商品：商品列表 9 格、定制页底层 16 格与弹窗大图、购物车 3 行、订单确认 3 行。点击分类导航会把该分类的商品排到前面；点商品卡进入定制页时，弹窗大图与标题跟随所选商品。每款商品的英语、法语、中文名称与分类译文统一配置在 <code>i18n.json</code>，原始素材保存在 <code>assets/products/original/</code>。</p>
+<div class="catalog"><div class="pitem" data-pid="americano"><img src="assets/products/card/americano.png" alt="美式咖啡" loading="lazy"><b>美式咖啡</b><span>经典</span></div><div class="pitem" data-pid="caramel-macchiato"><img src="assets/products/card/caramel-macchiato.png" alt="焦糖玛奇朵" loading="lazy"><b>焦糖玛奇朵</b><span>经典</span></div><div class="pitem" data-pid="coconut-mocha"><img src="assets/products/card/coconut-mocha.png" alt="生椰摩卡" loading="lazy"><b>生椰摩卡</b><span>经典</span></div><div class="pitem" data-pid="espresso"><img src="assets/products/card/espresso.png" alt="意式浓缩" loading="lazy"><b>意式浓缩</b><span>浓缩咖啡</span></div><div class="pitem" data-pid="luckin-americano"><img src="assets/products/card/luckin-americano.png" alt="瑞幸冰美式" loading="lazy"><b>瑞幸冰美式</b><span>浓缩咖啡</span></div><div class="pitem" data-pid="luckin-caffe-mocha"><img src="assets/products/card/luckin-caffe-mocha.png" alt="瑞幸摩卡" loading="lazy"><b>瑞幸摩卡</b><span>奶咖</span></div><div class="pitem" data-pid="luckin-cappuccino"><img src="assets/products/card/luckin-cappuccino.png" alt="瑞幸卡布奇诺" loading="lazy"><b>瑞幸卡布奇诺</b><span>奶咖</span></div><div class="pitem" data-pid="luckin-latte"><img src="assets/products/card/luckin-latte.png" alt="瑞幸拿铁" loading="lazy"><b>瑞幸拿铁</b><span>奶咖</span></div><div class="pitem" data-pid="shaken-iced-green-tea"><img src="assets/products/card/shaken-iced-green-tea.png" alt="冰摇柠檬绿茶" loading="lazy"><b>冰摇柠檬绿茶</b><span>冰饮</span></div><div class="pitem" data-pid="tims-coconut-caramel"><img src="assets/products/card/tims-coconut-caramel.png" alt="生椰焦糖玛奇朵" loading="lazy"><b>生椰焦糖玛奇朵</b><span>其他</span></div><div class="pitem" data-pid="tims-coconut-matcha"><img src="assets/products/card/tims-coconut-matcha.png" alt="生椰冰抹茶" loading="lazy"><b>生椰冰抹茶</b><span>冰饮</span></div><div class="pitem" data-pid="tims-french-vanilla"><img src="assets/products/card/tims-french-vanilla.png" alt="法式香草拿铁" loading="lazy"><b>法式香草拿铁</b><span>其他</span></div><div class="pitem" data-pid="tims-hibiscus"><img src="assets/products/card/tims-hibiscus.png" alt="洛神花冷萃" loading="lazy"><b>洛神花冷萃</b><span>冰饮</span></div><div class="pitem" data-pid="snowcap-mocha"><img src="assets/products/card/snowcap-mocha.png" alt="雪顶棉花糖摩卡" loading="lazy"><b>雪顶棉花糖摩卡</b><span>其他</span></div><div class="pitem" data-pid="tims-cafe-mocha"><img src="assets/products/card/tims-cafe-mocha.png" alt="咖啡摩卡" loading="lazy"><b>咖啡摩卡</b><span>奶咖</span></div><div class="pitem" data-pid="tims-caramel-macchiato"><img src="assets/products/card/tims-caramel-macchiato.png" alt="天好焦糖玛奇朵" loading="lazy"><b>天好焦糖玛奇朵</b><span>奶咖</span></div></div>
+<!-- PRODUCTS_END -->
+<footer>
+流程：待机首页 → 语言 / 帮助 → 商品列表 → 商品定制 → 购物车 → 刷卡支付 / 订单确认 → 制作中 → 出杯完成；另含支付成功与三类报错状态。<br>
+每屏均保留 Figma 原始布局与字体，商品图/名称已替换为真实目录素材，资源已本地化，可离线打开。当前卡片链接指向<b>可交互版本（含真实商品）</b>；Figma 原始占位商品的纯静态复刻版另存于 <code>pages-static/</code>，追加 <code>?freeze=1</code> 可冻结计时与自动跳转做静态对照。
+</footer>
+</body>
+</html>

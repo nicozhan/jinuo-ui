@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="Preparing / 制作中 · Jetinno Coffee Kiosk">Preparing / 制作中 · Jetinno Coffee Kiosk</title>
+<style>
+@font-face{font-family:'Fraunces';src:url('../assets/fonts/fraunces.woff2') format('woff2');font-weight:400 700;font-display:block}
+@font-face{font-family:'Instrument Sans';src:url('../assets/fonts/instrument-sans.woff2') format('woff2');font-weight:400 700;font-display:block}
+@font-face{font-family:'Noto Serif SC';src:url('../assets/fonts/noto-serif-sc.woff2') format('woff2');font-weight:400 900;font-display:block}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:#DDD6CC;font-family:'Instrument Sans',Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left}
+.screen{position:relative;width:1080px;height:1920px;background:#1A120B;overflow:hidden}
+.tx{display:block;width:100%}
+button,.btn{cursor:pointer}
+
+.f1{position:absolute;left:0px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f2{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#1A120B;}
+.f3{position:absolute;left:0px;top:0px;width:1080.58px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f4{position:absolute;left:0px;top:0px;width:1080.58px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f5{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#1A120B;}
+.f6{position:absolute;left:0.29px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;border-radius:40px;box-shadow:0px 36px 72px -42px rgba(92,67,45,0.260);}
+.f7{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FFFDF9;}
+.f8{position:absolute;left:0px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f9{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FFFDF9;}
+.f10{position:absolute;left:0px;top:0px;width:1080px;height:66.32px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f11{position:absolute;left:64px;top:20px;width:230px;height:24px;box-sizing:border-box;}
+.f12{position:absolute;left:0px;top:1px;width:230px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f13{position:absolute;left:443.5px;top:20px;width:272px;height:24px;box-sizing:border-box;}
+.f14{position:absolute;left:0px;top:1px;width:272px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f15{position:absolute;left:865px;top:20px;width:151px;height:24px;box-sizing:border-box;}
+.f16{position:absolute;left:0px;top:0px;width:109px;height:24px;box-sizing:border-box;}
+.f17{position:absolute;left:0px;top:1px;width:109px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f18{position:absolute;left:133px;top:4px;width:18px;height:16px;box-sizing:border-box;}
+.f19{position:absolute;left:0px;top:11px;width:3px;height:5px;box-sizing:border-box;}
+.f20{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f21{position:absolute;left:5px;top:8px;width:3px;height:8px;box-sizing:border-box;}
+.f22{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f23{position:absolute;left:10px;top:5px;width:3px;height:11px;box-sizing:border-box;}
+.f24{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f25{position:absolute;left:15px;top:2px;width:3px;height:14px;box-sizing:border-box;}
+.f26{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f27{position:absolute;left:0px;top:66.32px;width:1080px;height:124px;box-sizing:border-box;}
+.f28{position:absolute;left:433.5px;top:32px;width:213px;height:80px;box-sizing:border-box;}
+.f29{position:absolute;left:0px;top:0px;width:213px;height:80px;box-sizing:border-box;overflow:hidden;}
+.f30{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:url(../assets/logo.png);background-size:contain;background-position:center;background-repeat:no-repeat;}
+.f31{position:absolute;left:0px;top:190.32px;width:1080px;height:134px;box-sizing:border-box;}
+.f32{position:absolute;left:64px;top:20px;width:952px;height:42px;box-sizing:border-box;}
+.f33{position:absolute;left:248px;top:1px;width:456px;height:42px;box-sizing:border-box;font-family:'Fraunces',Georgia,serif;font-size:40px;font-weight:600;line-height:42px;letter-spacing:0.4px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f34{position:absolute;left:64px;top:62px;width:952px;height:72px;box-sizing:border-box;}
+.f35{position:absolute;left:0px;top:12px;width:952px;height:60px;box-sizing:border-box;}
+.f36{position:absolute;left:236px;top:1px;width:480px;height:60px;box-sizing:border-box;font-family:'Noto Serif SC','Fraunces',serif;font-size:40px;font-weight:400;line-height:60px;letter-spacing:0px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:rgba(124,102,80,0.800);}
+.f37{position:absolute;left:0px;top:324.32px;width:1080px;height:1473.68px;box-sizing:border-box;}
+.f38{position:absolute;left:140px;top:336.84px;width:800px;height:800px;box-sizing:border-box;overflow:hidden;border-radius:28px;box-shadow:0px 32px 64px -28px rgba(58,42,30,0.420);}
+.f39{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:rgba(255,255,255,0.000);}
+.f40{position:absolute;left:0px;top:0px;width:800px;height:800px;box-sizing:border-box;overflow:hidden;}
+.f41{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:url(../assets/img/45f924271faa3343.jpg);background-size:cover;background-position:center;background-repeat:no-repeat;}
+.f42{position:absolute;left:0px;top:0px;width:800px;height:800px;box-sizing:border-box;overflow:hidden;}
+.f43{position:absolute;left:0px;top:1798px;width:1080px;height:122px;box-sizing:border-box;}
+.f44{position:absolute;left:64px;top:0px;width:952px;height:22px;box-sizing:border-box;}
+.f45{position:absolute;left:64px;top:22px;width:952px;height:60px;box-sizing:border-box;}
+</style>
+<link rel="stylesheet" href="../kiosk.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../refine.css">
+</head>
+<body data-refine="1" data-page="17-making">
+<div id="stage"><div class="screen"><div class="f1"><div class="f2"></div><div class="f3"><div class="f4"><div class="f5"></div><div class="f6"><div class="f7"></div><div class="f8"><div class="f9"></div><div class="f10"><div class="f11"><div class="f12"><span class="tx" data-i18n="MACHINE ID · JAV-08-221" data-kc="status-text">MACHINE ID · JAV-08-221</span></div></div><div class="f13"><div class="f14"><span class="tx" data-i18n="SUPPORT · +86 400 820 2006" data-kc="status-text">SUPPORT · +86 400 820 2006</span></div></div><div class="f15"><div class="f16"><div class="f17"><span class="tx" data-i18n="TIME · 14:05" data-kc="status-text">TIME · 14:05</span></div></div><div class="f18"><div class="f19"><div class="f20"></div></div><div class="f21"><div class="f22"></div></div><div class="f23"><div class="f24"></div></div><div class="f25"><div class="f26"></div></div></div></div></div><div class="f27"><div class="f28"><div class="f29"><div class="f30" data-kc="brand"></div></div></div></div><div class="f31"><div class="f32"><div class="f33"><span class="tx" data-i18n="Preparing your coffee…">Preparing your coffee…</span></div></div><div class="f34"><div class="f35"><div class="f36"><span class="tx" data-i18n="正在为您制作咖啡，请稍候">正在为您制作咖啡，请稍候</span></div></div></div></div><div class="f37"><div class="f38"><div class="f39"></div><div class="f40"><div class="f41"></div></div><div class="f42"></div></div></div><div class="f43"><div class="f44"></div><div class="f45"></div></div></div></div></div></div></div></div></div>
+<script src="../i18n.js"></script>
+<script src="../kiosk.js" data-screen="17-making"></script>
+</body>
+</html>

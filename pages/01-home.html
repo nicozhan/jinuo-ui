@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="Jetinno Coffee · Home">Jetinno Coffee · Home</title>
+<style>
+@font-face{
+  font-family:'Fraunces';
+  src:url('../assets/fonts/fraunces.woff2') format('woff2');
+  font-weight:400 700;
+  font-style:normal;
+  font-display:block;
+}
+@font-face{
+  font-family:'Instrument Sans';
+  src:url('../assets/fonts/instrument-sans.woff2') format('woff2');
+  font-weight:400 700;
+  font-style:normal;
+  font-display:block;
+}
+
+:root{
+  --ink:#3A2A1E;
+  --muted:#7C6650;
+  --brown:#5A4432;
+  --paper:#FFFDF9;
+  --shell-radius:40px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+  background:#DDD6CC;
+  font-family:'Instrument Sans',Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:geometricPrecision;
+}
+
+#stage{
+  position:absolute;
+  width:1080px;
+  height:1920px;
+  transform-origin:top left;
+}
+
+.screen{
+  position:relative;
+  width:1080px;
+  height:1920px;
+  background:#1A120B;
+  overflow:hidden;
+}
+
+.shell{
+  position:absolute;
+  inset:0;
+  background:var(--paper);
+  border-radius:var(--shell-radius);
+  overflow:hidden;
+}
+
+/* ---------- status bar ---------- */
+.statusbar{
+  position:absolute;left:0;top:0;
+  width:1080px;height:66.3px;
+  border-bottom:1px solid rgba(58,42,30,.14);
+}
+.status-txt{
+  position:absolute;top:21px;height:24px;
+  font-family:'Instrument Sans',sans-serif;
+  font-weight:600;font-size:16px;line-height:24px;
+  letter-spacing:1.92px;color:var(--muted);
+  white-space:nowrap;
+}
+.machine{left:64.3px;width:230px}
+.support{left:351.3px;width:272px}
+.clock{left:924.3px;width:50px}
+.status-divider{
+  position:absolute;left:322.3px;top:24px;
+  width:1px;height:16px;background:var(--ink);
+}
+.signal{position:absolute;left:998.3px;top:24px;width:18px;height:16px;display:block}
+
+/* ---------- header ---------- */
+.brand{
+  position:absolute;left:440.3px;top:106.3px;
+  width:200px;height:94px;display:block;
+  object-fit:fill;
+}
+
+/* ---------- featured banner ---------- */
+.banner{
+  position:absolute;left:64.3px;top:240.3px;
+  width:952px;height:952px;
+  border-radius:28px;
+  background:#F5EEE5;
+  overflow:hidden;
+  box-shadow:0 30px 60px -34px rgba(58,42,30,.5);
+}
+.banner-photo{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center center;
+  display:block;
+}
+.eyebrow{
+  position:absolute;left:48px;top:715.8px;width:856px;height:29px;
+  font-family:'Instrument Sans',sans-serif;
+  font-weight:600;font-size:19px;line-height:28.5px;
+  letter-spacing:4.56px;text-transform:uppercase;color:var(--paper);
+  white-space:nowrap;
+}
+.headline{
+  position:absolute;left:48px;top:756.8px;width:560px;height:149px;
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;font-size:76px;line-height:74.48px;
+  letter-spacing:-.76px;color:var(--paper);
+}
+.nav-btn{
+  position:absolute;top:444px;
+  width:64px;height:64px;
+  border:0;padding:0;border-radius:50%;
+  background:rgba(255,253,249,.94);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+  box-shadow:0 10px 24px -10px rgba(58,42,30,.84);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:transform .18s ease,background .18s ease;
+}
+.nav-btn:hover{transform:scale(1.06);background:#FFFDF9}
+.nav-btn:active{transform:scale(.96)}
+.nav-btn img{width:32px;height:32px;display:block}
+.prev{left:24px}
+.next{left:864px}
+
+/* ---------- carousel dots ---------- */
+.dots{
+  position:absolute;left:0;top:1212.3px;width:1080px;height:10px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.dot{
+  width:10px;height:10px;border-radius:999px;
+  background:var(--ink);border:0;padding:0;cursor:pointer;
+  transition:width .22s ease,background .22s ease;
+}
+.dot.active{width:36px;background:var(--brown)}
+
+/* ---------- accepted payments ---------- */
+.pay-title{
+  position:absolute;left:334.3px;top:1307.3px;width:412px;height:24px;
+  font-family:'Instrument Sans',sans-serif;
+  font-weight:600;font-size:32px;line-height:24px;
+  letter-spacing:3.52px;text-transform:uppercase;
+  text-align:center;color:var(--muted);white-space:nowrap;
+}
+.card-shadow{
+  box-shadow:
+    0 16px 32px -26px rgba(92,67,45,.39),
+    0 0 0 1px rgba(58,42,30,.08);
+}
+.pay-card{
+  position:absolute;top:1390.3px;
+  width:304px;height:112px;
+  background:#FFFFFF;border-radius:20px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+}
+.pay-card img{width:40px;height:40px;display:block}
+.pay-card span{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;font-size:28px;line-height:36px;
+  color:var(--ink);
+}
+.card-1{left:64.3px}
+.card-2{left:388.3px}
+.card-3{left:712.3px}
+
+/* ---------- primary CTA ---------- */
+.cta{
+  position:absolute;left:64.3px;top:1582.3px;
+  width:952px;height:90px;
+  background:var(--brown);border:0;border-radius:22px;
+  box-shadow:0 22px 60px -22px rgba(58,42,30,1);
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  color:#FFFFFF;cursor:pointer;
+  transition:transform .18s ease,filter .18s ease;
+}
+.cta:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.cta:active{transform:translateY(0)}
+.cta-label{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;font-size:32px;line-height:45px;
+  letter-spacing:.75px;
+}
+.cta-arrow{
+  font-family:'Instrument Sans',sans-serif;
+  font-weight:400;font-size:30px;line-height:45px;
+}
+
+/* ---------- bottom controls ---------- */
+.bottom-btn{
+  position:absolute;top:1765.3px;
+  width:466px;height:86px;
+  background:#FFFFFF;border:0;border-radius:20px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  cursor:pointer;transition:transform .18s ease;
+}
+.bottom-btn:hover{transform:translateY(-2px)}
+.bottom-btn:active{transform:translateY(0)}
+.lang{left:64.3px}
+.help{left:550.3px}
+.flag{
+  width:32px;height:26px;
+  font-family:'Instrument Sans',sans-serif;
+  font-size:32px;line-height:26px;text-align:center;
+}
+.bottom-label{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;font-size:32px;line-height:36px;
+  color:var(--ink);
+}
+.bottom-btn img{display:block}
+.lang img{width:20px;height:20px}
+.help img{width:32px;height:32px}
+
+/* ---------- reference overlay (comparison mode) ---------- */
+#compare{
+  position:absolute;inset:0;width:1080px;height:1920px;
+  object-fit:cover;opacity:.5;pointer-events:none;display:none;
+  z-index:99;
+}
+body.compare #compare{display:block}
+
+/* Pixel calibration: sub-pixel baseline / tracking compensation so CSS text
+   metrics match Figma's renderer at 1080×1920. */
+.pay-card span,.bottom-label,.flag{transform:translateY(1px)}
+.cta-label{letter-spacing:.5px}
+</style>
+<link rel="stylesheet" href="../kiosk.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../refine.css">
+</head>
+<body data-refine="1" data-page="01-home">
+
+<div id="stage">
+  <div class="screen">
+    <div class="shell">
+
+      <!-- status bar -->
+      <div class="statusbar">
+        <div class="status-txt machine" data-i18n="MACHINE ID · JAV-08-221" data-kc="status-text">MACHINE ID · JAV-08-221</div>
+        <div class="status-divider"></div>
+        <div class="status-txt support" data-i18n="SUPPORT · +86 400 820 2006" data-kc="status-text">SUPPORT · +86 400 820 2006</div>
+        <div class="status-txt clock" data-nolang="1" data-kc="status-text">14:00</div>
+        <img class="signal" src="../assets/signal.svg" alt="signal">
+      </div>
+
+      <!-- brand -->
+      <img class="brand" src="../assets/logo.png" alt="1910 Coffee Station" data-kc="brand">
+
+      <!-- featured banner -->
+      <div class="banner">
+        <img class="banner-photo" src="../assets/banner.jpg" alt="Warm pour-over coffee in natural light">
+        
+        <div class="eyebrow" data-i18n="JAVA · Fresh Daily">JAVA · Fresh Daily</div>
+        <div class="headline" data-i18n="Snacks for the next move.">Snacks for the next move.</div>
+        <button class="nav-btn prev" id="prev" aria-label="Previous slide">
+          <img src="../assets/chevron-left.svg" alt="">
+        </button>
+        <button class="nav-btn next" id="next" aria-label="Next slide">
+          <img src="../assets/chevron-right.svg" alt="">
+        </button>
+      </div>
+
+      <!-- carousel dots -->
+      <div class="dots" id="dots">
+        <button class="dot active" aria-label="Go to slide 1"></button>
+        <button class="dot" aria-label="Go to slide 2"></button>
+        <button class="dot" aria-label="Go to slide 3"></button>
+      </div>
+
+      <!-- payments -->
+      <div class="pay-title" data-i18n="Accepted Payments">Accepted Payments</div>
+      <div class="pay-card card-1 card-shadow" data-btn-group="payment-card">
+        <img src="../assets/card.svg" alt="" data-kc="icon-lg">
+        <span data-i18n="Card" data-kc="payment-label">Card</span>
+      </div>
+      <div class="pay-card card-2 card-shadow" data-btn-group="payment-card">
+        <img src="../assets/tap.svg" alt="" data-kc="icon-lg">
+        <span data-i18n="Tap" data-kc="payment-label">Tap</span>
+      </div>
+      <div class="pay-card card-3 card-shadow" data-btn-group="payment-card">
+        <img src="../assets/qr.svg" alt="" data-kc="icon-lg">
+        <span data-i18n="QR Pay" data-kc="payment-label">QR Pay</span>
+      </div>
+
+      <!-- CTA -->
+      <button class="cta" data-btn-group="primary">
+        <span class="cta-label" data-i18n="Commencer vos achats" data-kc="cta-label">Commencer vos achats</span>
+        <span class="cta-arrow" data-nolang="1">→</span>
+      </button>
+
+      <!-- bottom controls -->
+      <div class="bottom-btn lang card-shadow" data-btn-group="bottom-action">
+        <span class="flag" data-nolang="1" data-kc="flag">🇫🇷</span>
+        <span class="bottom-label" data-i18n="@langLabel" data-lang-toggle="1" data-kc="top-action">Français</span>
+        <img src="../assets/chevron-down.svg" alt="" data-kc="icon-sm">
+      </div>
+      <div class="bottom-btn help card-shadow" data-btn-group="bottom-action">
+        <img src="../assets/help.svg" alt="" data-kc="icon-sm">
+        <span class="bottom-label" data-i18n="Help" data-kc="top-action">Help</span>
+      </div>
+
+    </div>
+    <img id="compare" src="../reference.png" alt="Figma reference overlay">
+  </div>
+</div>
+
+<script>
+/* Scale the fixed 1080×1920 artboard to fit the viewport, preserving 1:1 geometry. */
+function fit(){
+  var stage = document.getElementById('stage');
+  var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+  if (new URLSearchParams(location.search).has('raw')) s = 1;
+  stage.style.transform = 'scale(' + s + ')';
+  stage.style.left = ((window.innerWidth - 1080 * s) / 2) + 'px';
+  stage.style.top  = ((window.innerHeight - 1920 * s) / 2) + 'px';
+}
+window.addEventListener('resize', fit);
+fit();
+
+/* Comparison overlay: add ?compare=1 to the URL */
+if (new URLSearchParams(location.search).get('compare') === '1') {
+  document.body.classList.add('compare');
+}
+
+/* Minimal carousel state (visual only — single home screen per design file) */
+var dots = Array.prototype.slice.call(document.querySelectorAll('.dot'));
+var current = 0;
+function goTo(i){
+  current = (i + dots.length) % dots.length;
+  dots.forEach(function(d, n){ d.classList.toggle('active', n === current); });
+}
+dots.forEach(function(d, i){ d.addEventListener('click', function(){ goTo(i); }); });
+document.getElementById('prev').addEventListener('click', function(){ goTo(current - 1); });
+document.getElementById('next').addEventListener('click', function(){ goTo(current + 1); });
+</script>
+
+<script src="../i18n.js"></script>
+<script src="../kiosk.js" data-screen="01-home"></script>
+</body>
+</html>

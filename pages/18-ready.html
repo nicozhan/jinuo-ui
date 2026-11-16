@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="Ready / 出杯完成 · Jetinno Coffee Kiosk">Ready / 出杯完成 · Jetinno Coffee Kiosk</title>
+<style>
+@font-face{font-family:'Fraunces';src:url('../assets/fonts/fraunces.woff2') format('woff2');font-weight:400 700;font-display:block}
+@font-face{font-family:'Instrument Sans';src:url('../assets/fonts/instrument-sans.woff2') format('woff2');font-weight:400 700;font-display:block}
+@font-face{font-family:'Noto Serif SC';src:url('../assets/fonts/noto-serif-sc.woff2') format('woff2');font-weight:400 900;font-display:block}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:#DDD6CC;font-family:'Instrument Sans',Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left}
+.screen{position:relative;width:1080px;height:1920px;background:#1A120B;overflow:hidden}
+.tx{display:block;width:100%}
+button,.btn{cursor:pointer}
+
+.f1{position:absolute;left:0px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f2{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#1A120B;}
+.f3{position:absolute;left:0px;top:0px;width:1080.58px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f4{position:absolute;left:0px;top:0px;width:1080.58px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f5{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#1A120B;}
+.f6{position:absolute;left:0.29px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;border-radius:40px;box-shadow:0px 36px 72px -42px rgba(92,67,45,0.260);}
+.f7{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FFFDF9;}
+.f8{position:absolute;left:0px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;}
+.f9{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FFFDF9;}
+.f10{position:absolute;left:0px;top:0px;width:1080px;height:66.32px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f11{position:absolute;left:64px;top:20px;width:230px;height:24px;box-sizing:border-box;}
+.f12{position:absolute;left:0px;top:1px;width:230px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f13{position:absolute;left:443px;top:20px;width:272px;height:24px;box-sizing:border-box;}
+.f14{position:absolute;left:0px;top:1px;width:272px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f15{position:absolute;left:864px;top:20px;width:152px;height:24px;box-sizing:border-box;}
+.f16{position:absolute;left:0px;top:0px;width:110px;height:24px;box-sizing:border-box;}
+.f17{position:absolute;left:0px;top:1px;width:110px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:1.92px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f18{position:absolute;left:134px;top:4px;width:18px;height:16px;box-sizing:border-box;}
+.f19{position:absolute;left:0px;top:11px;width:3px;height:5px;box-sizing:border-box;}
+.f20{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f21{position:absolute;left:5px;top:8px;width:3px;height:8px;box-sizing:border-box;}
+.f22{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f23{position:absolute;left:10px;top:5px;width:3px;height:11px;box-sizing:border-box;}
+.f24{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f25{position:absolute;left:15px;top:2px;width:3px;height:14px;box-sizing:border-box;}
+.f26{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#5A4432;}
+.f27{position:absolute;left:0px;top:66.32px;width:1080px;height:124px;box-sizing:border-box;}
+.f28{position:absolute;left:433.5px;top:32px;width:213px;height:80px;box-sizing:border-box;}
+.f29{position:absolute;left:0px;top:0px;width:213px;height:80px;box-sizing:border-box;overflow:hidden;}
+.f30{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:url(../assets/logo.png);background-size:contain;background-position:center;background-repeat:no-repeat;}
+.f31{position:absolute;left:0px;top:190.32px;width:1080px;height:146px;box-sizing:border-box;}
+.f32{position:absolute;left:64px;top:20px;width:952px;height:53px;box-sizing:border-box;opacity:0.361;}
+.f33{position:absolute;left:170.5px;top:1px;width:611px;height:53px;box-sizing:border-box;font-family:'Fraunces',Georgia,serif;font-size:50px;font-weight:600;line-height:52.5px;letter-spacing:0.5px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f34{position:absolute;left:64px;top:73px;width:952px;height:45px;box-sizing:border-box;}
+.f35{position:absolute;left:0px;top:12px;width:952px;height:33px;box-sizing:border-box;opacity:0.361;}
+.f36{position:absolute;left:316px;top:1px;width:320px;height:33px;box-sizing:border-box;font-family:'Noto Serif SC','Fraunces',serif;font-size:40px;font-weight:400;line-height:33px;letter-spacing:0px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:rgba(124,102,80,0.800);}
+.f37{position:absolute;left:64px;top:118px;width:952px;height:28px;box-sizing:border-box;}
+.f38{position:absolute;left:196px;top:20px;width:560px;height:8px;box-sizing:border-box;overflow:hidden;opacity:0.361;border-radius:9999px;box-shadow:0px 0px 0px 1px rgba(58,42,30,0.100);}
+.f39{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FBF8F3;}
+.f40{position:absolute;left:0px;top:0px;width:560px;height:8px;box-sizing:border-box;border-radius:9999px;}
+.f41{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:linear-gradient(90deg, #5A4432 0%, #684B34 7.143%, #765337 14.286%, #845B39 21.429%, #93623A 28.571%, #A26A3C 35.714%, #B1723D 42.857%, #C07A3E 50%, #B1723D 57.143%, #A26A3C 64.286%, #93623A 71.429%, #845B39 78.571%, #765337 85.714%, #684B34 92.857%, #5A4432 100%);}
+.f42{position:absolute;left:0px;top:336.32px;width:1080px;height:1379.68px;box-sizing:border-box;}
+.f43{position:absolute;left:140px;top:289.84px;width:800px;height:800px;box-sizing:border-box;overflow:hidden;border-radius:28px;box-shadow:0px 32px 64px -28px rgba(58,42,30,0.420);}
+.f44{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:rgba(255,255,255,0.000);}
+.f45{position:absolute;left:0px;top:0px;width:800px;height:800px;box-sizing:border-box;overflow:hidden;}
+.f46{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:url(../assets/img/45f924271faa3343.jpg);background-size:cover;background-position:center;background-repeat:no-repeat;}
+.f47{position:absolute;left:0px;top:0px;width:800px;height:800px;box-sizing:border-box;overflow:hidden;}
+.f48{position:absolute;left:0px;top:1716px;width:1080px;height:204px;box-sizing:border-box;}
+.f49{position:absolute;left:64px;top:0px;width:952px;height:30px;box-sizing:border-box;}
+.f50{position:absolute;left:4px;top:0px;width:159px;height:30px;box-sizing:border-box;}
+.f51{position:absolute;left:0px;top:1px;width:159px;height:30px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:20px;font-weight:600;line-height:30px;letter-spacing:3.2px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f52{position:absolute;left:308.67px;top:0px;width:121px;height:30px;box-sizing:border-box;}
+.f53{position:absolute;left:0px;top:1px;width:121px;height:30px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:20px;font-weight:600;line-height:30px;letter-spacing:3.2px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f54{position:absolute;left:575.33px;top:0px;width:96px;height:30px;box-sizing:border-box;}
+.f55{position:absolute;left:0px;top:1px;width:96px;height:30px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:20px;font-weight:600;line-height:30px;letter-spacing:3.2px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f56{position:absolute;left:817px;top:0px;width:131px;height:30px;box-sizing:border-box;}
+.f57{position:absolute;left:0px;top:1px;width:131px;height:30px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:20px;font-weight:600;line-height:30px;letter-spacing:3.2px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f58{position:absolute;left:64px;top:30px;width:952px;height:22px;box-sizing:border-box;}
+.f59{position:absolute;left:0px;top:12px;width:952px;height:10px;box-sizing:border-box;overflow:hidden;opacity:0.361;border-radius:9999px;box-shadow:0px 0px 0px 1px rgba(58,42,30,0.100);}
+.f60{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FBF8F3;}
+.f61{position:absolute;left:0px;top:0px;width:952px;height:10px;box-sizing:border-box;border-radius:9999px;}
+.f62{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:linear-gradient(90deg, #5A4432 0%, #684B34 7.143%, #765337 14.286%, #845B39 21.429%, #93623A 28.571%, #A26A3C 35.714%, #B1723D 42.857%, #C07A3E 50%, #B1723D 57.143%, #A26A3C 64.286%, #93623A 71.429%, #845B39 78.571%, #765337 85.714%, #684B34 92.857%, #5A4432 100%);}
+.f63{position:absolute;left:64px;top:52px;width:952px;height:112px;box-sizing:border-box;}
+.f64{position:absolute;left:0px;top:31.99px;width:952px;height:80px;box-sizing:border-box;border-radius:9999px;}
+.f65{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#3A2A1E;}
+.f66{position:absolute;left:371.38px;top:21.88px;width:211px;height:36px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:600;line-height:36px;letter-spacing:0.6px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#FFFFFF;}
+</style>
+<link rel="stylesheet" href="../kiosk.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../refine.css">
+</head>
+<body data-refine="1" data-page="18-ready">
+<div id="stage"><div class="screen"><div class="f1"><div class="f2"></div><div class="f3"><div class="f4"><div class="f5"></div><div class="f6"><div class="f7"></div><div class="f8"><div class="f9"></div><div class="f10"><div class="f11"><div class="f12"><span class="tx" data-i18n="MACHINE ID · JAV-08-221" data-kc="status-text">MACHINE ID · JAV-08-221</span></div></div><div class="f13"><div class="f14"><span class="tx" data-i18n="SUPPORT · +86 400 820 2006" data-kc="status-text">SUPPORT · +86 400 820 2006</span></div></div><div class="f15"><div class="f16"><div class="f17"><span class="tx" data-i18n="TIME · 14:06" data-kc="status-text">TIME · 14:06</span></div></div><div class="f18"><div class="f19"><div class="f20"></div></div><div class="f21"><div class="f22"></div></div><div class="f23"><div class="f24"></div></div><div class="f25"><div class="f26"></div></div></div></div></div><div class="f27"><div class="f28"><div class="f29"><div class="f30" data-kc="brand"></div></div></div></div><div class="f31"><div class="f32"><div class="f33"><span class="tx" data-i18n="YOUR COFFEE IS READY">YOUR COFFEE IS READY</span></div></div><div class="f34"><div class="f35"><div class="f36"><span class="tx" data-i18n="您的咖啡制作完成">您的咖啡制作完成</span></div></div></div><div class="f37"><div class="f38"><div class="f39"></div><div class="f40"><div class="f41"></div></div></div></div></div><div class="f42"><div class="f43"><div class="f44"></div><div class="f45"><div class="f46"></div></div><div class="f47"></div></div></div><div class="f48"><div class="f49"><div class="f50"><div class="f51"><span class="tx" data-i18n="01 · PREPARE" data-kc="step-label">01 · PREPARE</span></div></div><div class="f52"><div class="f53"><span class="tx" data-i18n="02 · BREW" data-kc="step-label">02 · BREW</span></div></div><div class="f54"><div class="f55"><span class="tx" data-i18n="03 · MIX" data-kc="step-label">03 · MIX</span></div></div><div class="f56"><div class="f57"><span class="tx" data-i18n="04 · SERVE" data-kc="step-label">04 · SERVE</span></div></div></div><div class="f58"><div class="f59"><div class="f60"></div><div class="f61"><div class="f62"></div></div></div></div><div class="f63"><div class="f64" data-btn-group="primary"><div class="f65"></div><div class="f66"><span class="tx" data-i18n="Start a New Order" data-kc="cta-label">Start a New Order</span></div></div></div></div></div></div></div></div></div></div></div>
+<script src="../i18n.js"></script>
+<script src="../kiosk.js" data-screen="18-ready"></script>
+</body>
+</html>

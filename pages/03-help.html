@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="Help / 帮助弹窗 · Jetinno Coffee Kiosk">Help / 帮助弹窗 · Jetinno Coffee Kiosk</title>
+<style>
+@font-face{font-family:'Fraunces';src:url('../assets/fonts/fraunces.woff2') format('woff2');font-weight:400 700;font-display:block}
+@font-face{font-family:'Instrument Sans';src:url('../assets/fonts/instrument-sans.woff2') format('woff2');font-weight:400 700;font-display:block}
+@font-face{font-family:'Noto Serif SC';src:url('../assets/fonts/noto-serif-sc.woff2') format('woff2');font-weight:400 900;font-display:block}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:#DDD6CC;font-family:'Instrument Sans',Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left}
+.screen{position:relative;width:1080px;height:1920px;background:#1A120B;overflow:hidden}
+.tx{display:block;width:100%}
+button,.btn{cursor:pointer}
+
+.f1{position:absolute;left:0px;top:0px;width:1080px;height:1920px;box-sizing:border-box;overflow:hidden;backdrop-filter:blur(4px);}
+.f2{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#3A2A1E;}
+.f3{position:absolute;left:150px;top:509.5px;width:780px;height:901px;box-sizing:border-box;overflow:hidden;border-radius:30px;box-shadow:0px 38px 90px 0px rgba(30,19,11,0.360),0px 0px 0px 1px rgba(255,253,249,0.550);}
+.f4{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FFFFFF;}
+.f5{position:absolute;left:54px;top:50px;width:672px;height:24px;box-sizing:border-box;}
+.f6{position:absolute;left:0px;top:1px;width:199px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:2.88px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#C07A3E;}
+.f7{position:absolute;left:54px;top:74px;width:672px;height:62px;box-sizing:border-box;}
+.f8{position:absolute;left:0px;top:13px;width:405px;height:50px;box-sizing:border-box;font-family:'Fraunces',Georgia,serif;font-size:48px;font-weight:600;line-height:49.44px;letter-spacing:0px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f9{position:absolute;left:54px;top:136px;width:672px;height:37px;box-sizing:border-box;}
+.f10{position:absolute;left:0px;top:36px;width:672px;height:1px;box-sizing:border-box;}
+.f11{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:rgba(58,42,30,0.100);}
+.f12{position:absolute;left:54px;top:173px;width:672px;height:278px;box-sizing:border-box;}
+.f13{position:absolute;left:0px;top:32px;width:672px;height:246px;box-sizing:border-box;}
+.f14{position:absolute;left:0px;top:0px;width:180px;height:246.49px;box-sizing:border-box;}
+.f15{position:absolute;left:0px;top:0px;width:180px;height:180px;box-sizing:border-box;border-radius:16px;box-shadow:0px 0px 0px 1px rgba(58,42,30,0.100);}
+.f16{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#FFFDF9;}
+.f17{position:absolute;left:15.98px;top:15.98px;width:148.04px;height:148.04px;box-sizing:border-box;overflow:hidden;}
+.f18{position:absolute;left:0px;top:0px;width:148.04px;height:148.04px;display:block;}
+.f19{position:absolute;left:5.1px;top:5.1px;width:137.83px;height:137.83px;display:block;}
+.f20{position:absolute;left:10.21px;top:10.21px;width:127.62px;height:127.62px;box-sizing:border-box;}
+.f21{position:absolute;left:0px;top:0px;width:127.62px;height:127.62px;display:block;}
+.f22{position:absolute;left:0px;top:0px;width:127.62px;height:122.52px;display:block;}
+.f23{position:absolute;left:-10.5px;top:180px;width:201px;height:40px;box-sizing:border-box;}
+.f24{position:absolute;left:0px;top:17px;width:201px;height:24px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:600;line-height:24px;letter-spacing:1.28px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#5A4432;}
+.f25{position:absolute;left:216px;top:0px;width:456.05px;height:246.49px;box-sizing:border-box;}
+.f26{position:absolute;left:0px;top:0px;width:456.05px;height:73px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f27{position:absolute;left:0px;top:0px;width:33.99px;height:54.53px;box-sizing:border-box;}
+.f28{position:absolute;left:0px;top:4px;width:34px;height:51px;box-sizing:border-box;}
+.f29{position:absolute;left:0px;top:0px;width:23.99px;height:23.99px;box-sizing:border-box;overflow:hidden;}
+.f30{position:absolute;left:3.37px;top:3px;width:17.52px;height:17.52px;display:block;}
+.f31{position:absolute;left:49.99px;top:0px;width:406.09px;height:54.53px;box-sizing:border-box;}
+.f32{position:absolute;left:0px;top:0px;width:406.09px;height:21px;box-sizing:border-box;}
+.f33{position:absolute;left:0px;top:1px;width:94px;height:21px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:600;line-height:21px;letter-spacing:2.24px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f34{position:absolute;left:0px;top:21px;width:406.09px;height:34px;box-sizing:border-box;}
+.f35{position:absolute;left:0px;top:7px;width:161px;height:28px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:400;line-height:27.6px;letter-spacing:0px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f36{position:absolute;left:0px;top:73px;width:456.05px;height:86px;box-sizing:border-box;}
+.f37{position:absolute;left:0px;top:16px;width:33.99px;height:54.53px;box-sizing:border-box;}
+.f38{position:absolute;left:0px;top:4px;width:34px;height:51px;box-sizing:border-box;}
+.f39{position:absolute;left:0px;top:0px;width:23.99px;height:23.99px;box-sizing:border-box;overflow:hidden;}
+.f40{position:absolute;left:3px;top:5px;width:17.99px;height:13.99px;display:block;}
+.f41{position:absolute;left:4px;top:7px;width:15.99px;height:6px;display:block;}
+.f42{position:absolute;left:49.99px;top:16px;width:406.09px;height:54.53px;box-sizing:border-box;}
+.f43{position:absolute;left:0px;top:0px;width:406.09px;height:21px;box-sizing:border-box;}
+.f44{position:absolute;left:0px;top:1px;width:84px;height:21px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:600;line-height:21px;letter-spacing:2.24px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f45{position:absolute;left:0px;top:21px;width:406.09px;height:34px;box-sizing:border-box;}
+.f46{position:absolute;left:0px;top:7px;width:281px;height:28px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:400;line-height:27.6px;letter-spacing:0px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f47{position:absolute;left:54px;top:451px;width:672px;height:298.32px;box-sizing:border-box;}
+.f48{position:absolute;left:0px;top:28px;width:672px;height:270.32px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f49{position:absolute;left:0px;top:22.32px;width:672px;height:73px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f50{position:absolute;left:0px;top:0px;width:33.99px;height:54.53px;box-sizing:border-box;}
+.f51{position:absolute;left:0px;top:4px;width:34px;height:51px;box-sizing:border-box;}
+.f52{position:absolute;left:0px;top:0px;width:23.99px;height:23.99px;box-sizing:border-box;overflow:hidden;}
+.f53{position:absolute;left:7px;top:3.5px;width:9.99px;height:16.99px;display:block;}
+.f54{position:absolute;left:49.99px;top:0px;width:622.07px;height:54.53px;box-sizing:border-box;}
+.f55{position:absolute;left:0px;top:0px;width:622.07px;height:21px;box-sizing:border-box;}
+.f56{position:absolute;left:0px;top:1px;width:216px;height:21px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:600;line-height:21px;letter-spacing:2.24px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f57{position:absolute;left:0px;top:21px;width:622.07px;height:34px;box-sizing:border-box;}
+.f58{position:absolute;left:0px;top:7px;width:252px;height:28px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:400;line-height:27.6px;letter-spacing:0px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f59{position:absolute;left:0px;top:95.32px;width:672px;height:89px;box-sizing:border-box;border:1px solid rgba(58,42,30,0.100);}
+.f60{position:absolute;left:0px;top:16px;width:33.99px;height:54.53px;box-sizing:border-box;}
+.f61{position:absolute;left:0px;top:4px;width:34px;height:51px;box-sizing:border-box;}
+.f62{position:absolute;left:0px;top:0px;width:23.99px;height:23.99px;box-sizing:border-box;overflow:hidden;}
+.f63{position:absolute;left:5px;top:3px;width:13.99px;height:17.99px;display:block;}
+.f64{position:absolute;left:8px;top:7px;width:8px;height:8.99px;display:block;}
+.f65{position:absolute;left:49.99px;top:16px;width:622.07px;height:54.53px;box-sizing:border-box;}
+.f66{position:absolute;left:0px;top:0px;width:622.07px;height:21px;box-sizing:border-box;}
+.f67{position:absolute;left:0px;top:1px;width:161px;height:21px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:600;line-height:21px;letter-spacing:2.24px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f68{position:absolute;left:0px;top:21px;width:622.07px;height:34px;box-sizing:border-box;}
+.f69{position:absolute;left:0px;top:7px;width:136px;height:28px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:400;line-height:27.6px;letter-spacing:0px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f70{position:absolute;left:0px;top:184.32px;width:672px;height:86px;box-sizing:border-box;}
+.f71{position:absolute;left:0px;top:16px;width:33.99px;height:54.53px;box-sizing:border-box;}
+.f72{position:absolute;left:0px;top:4px;width:34px;height:51px;box-sizing:border-box;}
+.f73{position:absolute;left:0px;top:0px;width:23.99px;height:23.99px;box-sizing:border-box;overflow:hidden;}
+.f74{position:absolute;left:4px;top:2.2px;width:15.99px;height:18.29px;display:block;}
+.f75{position:absolute;left:9.49px;top:7.5px;width:5px;height:5px;display:block;}
+.f76{position:absolute;left:49.99px;top:16px;width:622.07px;height:54.53px;box-sizing:border-box;}
+.f77{position:absolute;left:0px;top:0px;width:622.07px;height:21px;box-sizing:border-box;}
+.f78{position:absolute;left:0px;top:1px;width:263px;height:21px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:600;line-height:21px;letter-spacing:2.24px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#7C6650;}
+.f79{position:absolute;left:0px;top:21px;width:622.07px;height:34px;box-sizing:border-box;}
+.f80{position:absolute;left:0px;top:7px;width:456px;height:28px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:24px;font-weight:400;line-height:27.6px;letter-spacing:0px;text-align:left;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#3A2A1E;}
+.f81{position:absolute;left:54px;top:749.32px;width:672px;height:104.04px;box-sizing:border-box;}
+.f82{position:absolute;left:0px;top:28.18px;width:672px;height:90px;box-sizing:border-box;border-radius:9999px;}
+.f83{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#3A2A1E;}
+.f84{position:absolute;left:316px;top:28px;width:39px;height:36px;box-sizing:border-box;font-family:'Noto Serif SC','Fraunces',serif;font-size:24px;font-weight:600;line-height:36px;letter-spacing:1.92px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:center;color:#FFFFFF;}
+.f85{position:absolute;left:0px;top:-0.11px;width:780px;height:6px;box-sizing:border-box;}
+.f86{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-color:#C07A3E;}
+.f87{position:absolute;left:696.04px;top:31.88px;width:48px;height:48px;box-sizing:border-box;border-radius:9999px;}
+.f88{position:absolute;left:13.5px;top:6px;width:21px;height:38px;box-sizing:border-box;font-family:'Instrument Sans',Arial,sans-serif;font-size:38px;font-weight:300;line-height:38px;letter-spacing:0px;text-align:center;white-space:pre;display:flex;flex-direction:column;justify-content:flex-start;color:#5A4432;}
+</style>
+<link rel="stylesheet" href="../kiosk.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../refine.css">
+</head>
+<body data-refine="1" data-page="03-help">
+<div id="stage"><div class="screen"><div class="f1"><div class="f2"></div><div class="f3"><div class="f4"></div><div class="f5"><div class="f6"><span class="tx" data-i18n="NEED ASSISTANCE?">NEED ASSISTANCE?</span></div></div><div class="f7"><div class="f8"><span class="tx" data-i18n="We&#x27;re here to help.">We&#x27;re here to help.</span></div></div><div class="f9"><div class="f10"><div class="f11"></div></div></div><div class="f12"><div class="f13"><div class="f14"><div class="f15"><div class="f16"></div><div class="f17"><img class="f18" src="../assets/vec/1-309.svg" alt=""><img class="f19" src="../assets/vec/1-310.svg" alt=""><div class="f20"><img class="f21" src="../assets/vec/1-312.svg" alt=""><img class="f22" src="../assets/vec/1-313.svg" alt=""></div></div></div><div class="f23"><div class="f24"><span class="tx" data-i18n="Scan to connect">Scan to connect</span></div></div></div><div class="f25"><div class="f26"><div class="f27"><div class="f28"><div class="f29"><img class="f30" src="../assets/vec/1-323.svg" alt=""></div></div></div><div class="f31"><div class="f32"><div class="f33"><span class="tx" data-i18n="PHONE" data-kc="info-label">PHONE</span></div></div><div class="f34"><div class="f35"><span class="tx" data-kc="info-value" data-nolang="1">+86 400 820 2006</span></div></div></div></div><div class="f36"><div class="f37"><div class="f38"><div class="f39"><img class="f40" src="../assets/vec/1-333.svg" alt=""><img class="f41" src="../assets/vec/1-334.svg" alt=""></div></div></div><div class="f42"><div class="f43"><div class="f44"><span class="tx" data-i18n="EMAIL" data-kc="info-label">EMAIL</span></div></div><div class="f45"><div class="f46"><span class="tx" data-kc="info-value" data-nolang="1">support@1910coffee.com</span></div></div></div></div></div></div></div><div class="f47"><div class="f48"><div class="f49"><div class="f50"><div class="f51"><div class="f52"><img class="f53" src="../assets/vec/1-346.svg" alt=""></div></div></div><div class="f54"><div class="f55"><div class="f56"><span class="tx" data-i18n="ORDER NUMBER" data-kc="info-label">ORDER NUMBER</span></div></div><div class="f57"><div class="f58"><span class="tx" data-kc="info-value" data-nolang="1">#ORD-20260818-8841</span></div></div></div></div><div class="f59"><div class="f60"><div class="f61"><div class="f62"><img class="f63" src="../assets/vec/1-356.svg" alt=""><img class="f64" src="../assets/vec/1-357.svg" alt=""></div></div></div><div class="f65"><div class="f66"><div class="f67"><span class="tx" data-i18n="MACHINE ID" data-kc="info-label">MACHINE ID</span></div></div><div class="f68"><div class="f69"><span class="tx" data-kc="info-value" data-nolang="1">JAV-08-221</span></div></div></div></div><div class="f70"><div class="f71"><div class="f72"><div class="f73"><img class="f74" src="../assets/vec/1-367.svg" alt=""><img class="f75" src="../assets/vec/1-368.svg" alt=""></div></div></div><div class="f76"><div class="f77"><div class="f78"><span class="tx" data-i18n="MACHINE ADDRESS" data-kc="info-label">MACHINE ADDRESS</span></div></div><div class="f79"><div class="f80"><span class="tx" data-i18n="Rämistrasse 101, 8092 Zurich, Switzerland">Rämistrasse 101, 8092 Zurich, Switzerland</span></div></div></div></div></div></div><div class="f81"><div class="f82" data-btn-group="primary"><div class="f83"></div><div class="f84"><span class="tx" data-i18n="OK" data-kc="cta-label">OK</span></div></div></div><div class="f85"><div class="f86"></div></div><div class="f87"><div class="f88"><span class="tx" data-nolang="1">×</span></div></div></div></div></div></div>
+<script src="../i18n.js"></script>
+<script src="../kiosk.js" data-screen="03-help"></script>
+</body>
+</html>
