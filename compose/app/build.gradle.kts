@@ -52,3 +52,17 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
+
+// Android Studio / IntelliJ Gradle sync asks every module for the Kotlin DSL
+// script model via a task named "prepareKotlinBuildScriptModel". Gradle 8.9
+// registers a no-op version of it on the root build.gradle.kts, but NOT on
+// this module (Kotlin Gradle Plugin 2.0.21), so IDE sync aborts with
+// "Task 'prepareKotlinBuildScriptModel' not found in project ':app'".
+// Registering the same no-op here matches the root behaviour and changes
+// nothing about the actual build.
+if (tasks.findByName("prepareKotlinBuildScriptModel") == null) {
+    tasks.register("prepareKotlinBuildScriptModel") {
+        group = "ide"
+        description = "No-op IDE compatibility task for the Kotlin DSL script model"
+    }
+}
