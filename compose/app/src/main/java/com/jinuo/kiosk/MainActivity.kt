@@ -45,13 +45,16 @@ class MainActivity : ComponentActivity() {
                 KioskTheme {
                     // Optional debug deep-link: `am start --es screen <name> [--ez cart true]`
                     // Names: home | lang | help | shopping | custom | cart |
-                    //        orderconfirm | cardpay | wrong | paysuccess | making | ready
-                    val start = when (intent?.getStringExtra("screen")) {
+                    //        orderconfirm | cardpay | wrong | paysuccess | making | ready.
+                    // help/cart/language are global overlays; deep links open them
+                    // over the shopping page so the real UX can be inspected.
+                    val screenExtra = intent?.getStringExtra("screen")
+                    val start = when (screenExtra) {
+                        "help" -> Screen.Shopping
+                        "cart" -> Screen.Shopping
                         "lang" -> Screen.Lang
-                        "help" -> Screen.Help
                         "shopping" -> Screen.Shopping
                         "custom" -> Screen.Custom(intent.getStringExtra("product") ?: "americano")
-                        "cart" -> Screen.Cart()
                         "orderconfirm" -> Screen.OrderConfirm
                         "cardpay" -> Screen.CardPay
                         "wrong" -> Screen.Wrong
@@ -62,7 +65,13 @@ class MainActivity : ComponentActivity() {
                     }
                     KioskApp(
                         initialScreen = start,
-                        initialCart = intent?.getBooleanExtra("cart", false) == true,
+                        initialCart = screenExtra == "cart" ||
+                            intent?.getBooleanExtra("cart", false) == true,
+                        initialHelp = screenExtra == "help",
+                        initialLangOpen = intent?.getBooleanExtra("langPicker", false) == true,
+                        initialLangAnchor = if (screenExtra == "shopping") Pair(480f, 155f)
+                            else if (screenExtra == "custom") Pair(765f, 155f)
+                            else Pair(66f, 1380f),
                     )
                 }
             }

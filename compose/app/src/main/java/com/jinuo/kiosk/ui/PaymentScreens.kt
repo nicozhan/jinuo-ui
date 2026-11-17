@@ -40,8 +40,12 @@ private val PAY_RED = androidx.compose.ui.graphics.Color(0xFFB33856)
 fun OrderConfirmScreen(
     modifier: Modifier = Modifier,
     items: List<CartItem>,
+    langLabel: String = "English",
+    langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     onBack: () -> Unit = {},
-    onPay: () -> Unit = {},
+    onLang: () -> Unit = {},
+    onHelp: () -> Unit = {},
+    onPay: (Double) -> Unit = {},
 ) {
     val subtotal = items.sumOf { it.lineTotal }
     val discount = Math.round(subtotal * 0.10 * 100) / 100.0
@@ -50,7 +54,8 @@ fun OrderConfirmScreen(
     val payAmount = if (total > 0) total else 8.0
 
     Artboard(modifier = modifier) {
-        PayHeader(timeLabel = "14:00", onBack = onBack)
+        PayHeader(timeLabel = "14:00", langLabel = langLabel, langFlag = langFlag,
+            onBack = onBack, onLang = onLang, onHelp = onHelp)
 
         Text(
             "ORDER CONFIRMATION",
@@ -151,7 +156,7 @@ fun OrderConfirmScreen(
         Box(
             modifier = Modifier.offset(97.dp, 1723.dp).size(886.dp, 96.dp)
                 .clip(RoundedCornerShape(16.dp)).background(PAY_RED)
-                .clickable { onPay() },
+                .clickable { onPay(payAmount) },
         ) {
             Text("PAY",
                 modifier = Modifier.offset(48.dp, 28.dp).size(200.dp, 44.dp),
@@ -201,11 +206,16 @@ private fun PayLogos(y: Int) {
 fun CardPayScreen(
     modifier: Modifier = Modifier,
     amount: Double = 8.0,
+    langLabel: String = "English",
+    langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     onBack: () -> Unit = {},
+    onLang: () -> Unit = {},
+    onHelp: () -> Unit = {},
     onDone: () -> Unit = {},
 ) {
     Artboard(modifier = modifier) {
-        PayHeader(timeLabel = "14:02", onBack = onBack)
+        PayHeader(timeLabel = "14:02", langLabel = langLabel, langFlag = langFlag,
+            onBack = onBack, onLang = onLang, onHelp = onHelp)
 
         Text("COMPLETE PAYMENT",
             modifier = Modifier.offset(140.dp, 160.dp).size(800.dp, 48.dp),
@@ -287,11 +297,16 @@ private fun PayLogosPayouts() {
 @Composable
 fun PaySuccessScreen(
     modifier: Modifier = Modifier,
+    langLabel: String = "English",
+    langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     onBack: () -> Unit = {},
+    onLang: () -> Unit = {},
+    onHelp: () -> Unit = {},
     onContinue: () -> Unit = {},
 ) {
     Artboard(modifier = modifier) {
-        PayHeader(timeLabel = "14:20", onBack = onBack)
+        PayHeader(timeLabel = "14:20", langLabel = langLabel, langFlag = langFlag,
+            onBack = onBack, onLang = onLang, onHelp = onHelp)
 
         Text("PAYMENT / SUCCESSFUL",
             modifier = Modifier.offset(64.dp, 188.dp).size(952.dp, 32.dp),

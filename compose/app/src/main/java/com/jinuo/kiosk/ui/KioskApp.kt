@@ -1,28 +1,40 @@
 package com.jinuo.kiosk.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 
 /**
- * Navigation root for the whole kiosk prototype. Owns the cart and the current
- * screen, and wires all twelve HTML pages together:
+ * Navigation root for the whole kiosk prototype. All twelve HTML pages are
+ * wired, and the three global UX layers — language picker, help modal and cart
+ * sheet — are overlays stacked over the current page (never page replacements):
  *
  *   01-home → 02-lang → 04-shopping → 05-custom → 06-cart(drawer)
  *          → 19-order-confirm → 11-card → 16-pay → 17-making → 18-ready → home
  *
- *   03-help and 15-wrong are reachable from the shared header / payment result.
+ * The English/French/Chinese picker defaults to English; interface copy stays
+ * English per project convention. Only the pill label/flag follow the choice.
  */
 @Composable
-fun KioskApp(initialScreen: Screen = Screen.Home, initialCart: Boolean = false) {
+fun KioskApp(
+    initialScreen: Screen = Screen.Home,
+    initialCart: Boolean = false,
+    initialHelp: Boolean = false,
+    initialLangOpen: Boolean = false,
+    initialLangAnchor: Pair<Float, Float> = Pair(66f, 1380f),
+) {
     val context = LocalContext.current
     var screen by remember { mutableStateOf<Screen>(initialScreen) }
-    var returnScreen by remember { mutableStateOf<Screen>(Screen.Home) }
+
+    // cart is shared by every page
     val cart = remember {
         mutableStateListOf<CartItem>().apply {
             if (initialCart) {
@@ -32,12 +44,21 @@ fun KioskApp(initialScreen: Screen = Screen.Home, initialCart: Boolean = false) 
             }
         }
     }
+
+    // --- global overlays ----------------------------------------------------
+    var langCode by remember { mutableStateOf("en") }          // default English
+    var langOpen by remember { mutableStateOf(initialLangOpen) }
+    var langAnchor by remember { mutableStateOf(initialLangAnchor) } // home/lang pill
+    var helpOpen by remember { mutableStateOf(initialHelp || initialScreen is Screen.Help) }
+    var cartOpen by remember { mutableStateOf(initialCart || initialScreen is Screen.Cart) }
+
     var showHomeConfirm by remember { mutableStateOf(false) }
     var payAmount by remember { mutableStateOf<Double>(8.0) }
     var brewStage by remember { mutableStateOf(0) }
 
     val cartCount = cart.sumOf { it.qty }
     val cartTotal = cart.sumOf { it.lineTotal }
+    val lang = langByCode(langCode)
 
     fun addToCart(item: CartItem) {
         val idx = cart.indexOfFirst { it.product.id == item.product.id && it.selections == item.selections }
@@ -56,116 +77,157 @@ fun KioskApp(initialScreen: Screen = Screen.Home, initialCart: Boolean = false) 
     fun goHome() {
         cart.clear()
         showHomeConfirm = false
+        helpOpen = false
+        cartOpen = false
+        langOpen = false
         screen = Screen.Home
     }
 
-    fun openHelp() {
-        returnScreen = screen
-        screen = Screen.Help
+    // --- language dropdown --------------------------------------------------
+    fun openLang(x: Float, y: Float) {
+        langAnchor = Pair(x, y)
+        langOpen = true
     }
 
-    fun closeHelp() {
-        screen = if (returnScreen is Screen.Help) Screen.Home else returnScreen
+    fun chooseLang(choice: LangOption) {
+        val fromHome = screen is Screen.Home || screen is Screen.Lang
+        langCode = choice.code
+        langOpen = false
+        Toast.makeText(
+            context,
+            if (fromHome) "${choice.label} selected · opening menu" else "Language: ${choice.label}",
+            Toast.LENGTH_SHORT,
+        ).show()
+        if (fromHome) screen = Screen.Shopping
     }
 
-    val langToast: () -> Unit = {
-        Toast.makeText(context, "Language selection (English only in prototype)", Toast.LENGTH_SHORT).show()
+    // --- cart sheet ---------------------------------------------------------
+    fun openCart() { cartOpen = true }
+    fun closeCart() { cartOpen = false }
+    fun goPay() {
+        cartOpen = false
+        payAmount = if (cartTotal > 0) cartTotal else 8.0
+        screen = Screen.OrderConfirm
     }
 
-    when (val s = screen) {
-        is Screen.Home -> HomeScreen(
-            onStart = { screen = Screen.Shopping },
-            onLang = { screen = Screen.Lang },
-            onHelp = { openHelp() },
-        )
+    Box(Modifier.fillMaxSize()) {
+        // ---- base page -----------------------------------------------------
+        when (val s = screen) {
+            is Screen.Home -> HomeScreen(
+                langLabel = lang.label, langFlag = lang.flag,
+                onStart = { screen = Screen.Shopping },
+                onLang = { openLang(66f, 1380f) },
+                onHelp = { helpOpen = true },
+            )
 
-        is Screen.Lang -> LangScreen(
-            onStart = { screen = Screen.Shopping },
-            onLang = langToast,
-            onHelp = { openHelp() },
-            onBack = { screen = Screen.Home },
-        )
+            is Screen.Lang -> LangScreen(
+                langLabel = lang.label, langFlag = lang.flag,
+                onStart = { screen = Screen.Shopping },
+                onLang = { openLang(66f, 1380f) },
+                onHelp = { helpOpen = true },
+                onBack = { screen = Screen.Home },
+            )
 
-        is Screen.Help -> HelpScreen(onClose = { closeHelp() })
+            is Screen.Shopping -> CustomScreen(
+                initialProductId = "americano",
+                startWithModal = false,
+                langLabel = lang.label, langFlag = lang.flag,
+                cartCount = cartCount, cartTotal = cartTotal,
+                onAddToCart = { addToCart(it) },
+                onCheckout = { openCart() },
+                onCartClick = { openCart() },
+                onLang = { openLang(480f, 155f) },
+                onHelp = { helpOpen = true },
+                onBack = { askHomeConfirm() },
+            )
 
-        is Screen.Shopping -> CustomScreen(
-            initialProductId = "americano",
-            startWithModal = false,
-            cartCount = cartCount,
-            cartTotal = cartTotal,
-            onAddToCart = { addToCart(it) },
-            onCheckout = { screen = Screen.Cart() },
-            onCartClick = { screen = Screen.Cart() },
-            onLang = langToast,
-            onHelp = { openHelp() },
-            onBack = { askHomeConfirm() },
-        )
+            is Screen.Custom -> CustomScreen(
+                initialProductId = s.productId,
+                startWithModal = true,
+                langLabel = lang.label, langFlag = lang.flag,
+                cartCount = cartCount, cartTotal = cartTotal,
+                onAddToCart = { addToCart(it) },
+                onCheckout = { openCart() },
+                onCartClick = { openCart() },
+                onLang = { openLang(765f, 155f) },
+                onHelp = { helpOpen = true },
+                onBack = { askHomeConfirm() },
+            )
 
-        is Screen.Custom -> CustomScreen(
-            initialProductId = s.productId,
-            startWithModal = true,
-            cartCount = cartCount,
-            cartTotal = cartTotal,
-            onAddToCart = { addToCart(it) },
-            onCheckout = { screen = Screen.Cart(s.productId) },
-            onCartClick = { screen = Screen.Cart(s.productId) },
-            onLang = langToast,
-            onHelp = { openHelp() },
-            onBack = { askHomeConfirm() },
-        )
+            is Screen.OrderConfirm -> OrderConfirmScreen(
+                items = cart, langLabel = lang.label, langFlag = lang.flag,
+                onBack = { askHomeConfirm() },
+                onLang = { openLang(700f, 155f) },
+                onHelp = { helpOpen = true },
+                onPay = { amount -> payAmount = amount; screen = Screen.CardPay },
+            )
 
-        is Screen.Cart -> CartScreen(
-            items = cart,
-            onQty = { index, delta -> changeQty(index, delta) },
-            onClose = { screen = Screen.Shopping },
-            onPay = { screen = Screen.OrderConfirm },
-        )
+            is Screen.CardPay -> CardPayScreen(
+                amount = payAmount, langLabel = lang.label, langFlag = lang.flag,
+                onBack = { askHomeConfirm() },
+                onLang = { openLang(700f, 155f) },
+                onHelp = { helpOpen = true },
+                onDone = {
+                    // happy path → 16-pay; error page reachable via deep link
+                    brewStage = 0
+                    screen = Screen.PaySuccess
+                },
+            )
 
-        is Screen.OrderConfirm -> OrderConfirmScreen(
-            items = cart,
-            onBack = { askHomeConfirm() },
-            onPay = {
-                payAmount = cart.sumOf { it.lineTotal }.let { if (it > 0) it else 8.0 }
-                screen = Screen.CardPay
-            },
-        )
+            is Screen.Wrong -> WrongScreen(
+                onHelp = { helpOpen = true },
+                onHome = { goHome() },
+            )
 
-        is Screen.CardPay -> CardPayScreen(
-            amount = payAmount,
-            onBack = { askHomeConfirm() },
-            onDone = {
-                // finishPayment(): success → 16-pay, otherwise → 15-wrong.
-                // The prototype's happy path is success; error page is also
-                // reachable directly via deep link (`screen=wrong`).
-                brewStage = 0
-                screen = Screen.PaySuccess
-            },
-        )
+            is Screen.PaySuccess -> PaySuccessScreen(
+                langLabel = lang.label, langFlag = lang.flag,
+                onBack = { askHomeConfirm() },
+                onLang = { openLang(700f, 155f) },
+                onHelp = { helpOpen = true },
+                onContinue = { brewStage = 0; screen = Screen.Making },
+            )
 
-        is Screen.Wrong -> WrongScreen(
-            onHelp = { openHelp() },
-            onHome = { goHome() },
-        )
+            is Screen.Making -> MakingScreen(
+                stage = brewStage.coerceIn(0, 4),
+                onDone = {
+                    if (brewStage < 4) brewStage += 1 else screen = Screen.Ready
+                },
+            )
 
-        is Screen.PaySuccess -> PaySuccessScreen(
-            onBack = { askHomeConfirm() },
-            onContinue = { brewStage = 0; screen = Screen.Making },
-        )
+            is Screen.Ready -> ReadyScreen(onNewOrder = { goHome() })
 
-        is Screen.Making -> MakingScreen(
-            stage = brewStage.coerceIn(0, 4),
-            onDone = {
-                if (brewStage < 4) brewStage += 1
-                else screen = Screen.Ready
-            },
-        )
+            is Screen.Help -> HelpScreen(onClose = { helpOpen = false })
+            is Screen.Cart -> CartScreen(
+                items = cart,
+                onQty = { index, delta -> changeQty(index, delta) },
+                onClose = { screen = Screen.Shopping },
+                onPay = { goPay() },
+            )
+        }
 
-        is Screen.Ready -> ReadyScreen(
-            onNewOrder = { goHome() },
-        )
-    }
-
-    if (showHomeConfirm) {
-        HomeConfirmDialog(onCancel = { showHomeConfirm = false }, onConfirm = { goHome() })
+        // ---- global overlays (stacked above the base page) -----------------
+        // Order: cart sheet < help modal < language picker < home confirm.
+        if (cartOpen && screen !is Screen.Cart) {
+            CartOverlay(
+                items = cart,
+                onQty = { index, delta -> changeQty(index, delta) },
+                onClose = { closeCart() },
+                onPay = { goPay() },
+            )
+        }
+        if (helpOpen && screen !is Screen.Help) {
+            HelpOverlay(onClose = { helpOpen = false })
+        }
+        if (langOpen) {
+            LangPicker(
+                x = langAnchor.first, y = langAnchor.second,
+                selectedCode = langCode,
+                onSelect = { chooseLang(it) },
+                onDismiss = { langOpen = false },
+            )
+        }
+        if (showHomeConfirm) {
+            HomeConfirmDialog(onCancel = { showHomeConfirm = false }, onConfirm = { goHome() })
+        }
     }
 }

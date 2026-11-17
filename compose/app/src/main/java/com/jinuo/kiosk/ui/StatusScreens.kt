@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -64,6 +65,8 @@ private val LANG_SLIDES = listOf(
 @Composable
 fun LangScreen(
     modifier: Modifier = Modifier,
+    langLabel: String = "English",
+    langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     onStart: () -> Unit = {},
     onLang: () -> Unit = {},
     onHelp: () -> Unit = {},
@@ -151,8 +154,8 @@ fun LangScreen(
             .border(1.dp, Caramel.copy(alpha = 0.6f), RoundedCornerShape(20.dp))
             .clickable { onLang() }, contentAlignment = Alignment.Center) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("\uD83C\uDDEC\uD83C\uDDE7", fontSize = 30.sp)
-                Text("English", modifier = Modifier.offset(16.dp, 0.dp),
+                Text(langFlag, fontSize = 30.sp)
+                Text(langLabel, modifier = Modifier.offset(16.dp, 0.dp),
                     fontFamily = Fraunces, fontWeight = FontWeight.W600,
                     fontSize = 30.sp, color = Ink)
                 Text("⌄", modifier = Modifier.offset(20.dp, (-4).dp),
@@ -193,19 +196,36 @@ private fun LangPayCard(x: Float, icon: Int, label: String) {
 }
 
 /* ---------------------------- 03-help ----------------------------------- */
-/** Support modal: dimmed background + white dialog, matching the Figma panel. */
+/** Standalone help page (deep link `screen=help`). */
 @Composable
 fun HelpScreen(
     modifier: Modifier = Modifier,
     onClose: () -> Unit = {},
 ) {
-    Artboard(modifier = modifier) {
-        // dim the underlying screen
-        Box(Modifier.size(ART_W, ART_H).background(Scrim).clickable { onClose() })
+    Artboard(modifier = modifier) { HelpDialogContent(onClose) }
+}
 
-        // dialog 150,509 780x901 radius 30
-        Box(Modifier.offset(150.dp, 510.dp).size(780.dp, 900.dp)
-            .clip(RoundedCornerShape(30.dp)).background(Cream)) {
+/**
+ * Help as a true overlay: dims and keeps whatever page is currently showing
+ * underneath, matching the HTML support modal (state.returnTo).
+ */
+@Composable
+internal fun HelpOverlay(
+    modifier: Modifier = Modifier,
+    onClose: () -> Unit = {},
+) {
+    OverlayBoard(modifier = modifier) { HelpDialogContent(onClose) }
+}
+
+/** The scrim + 780x901 dialog body, shared by the page and the overlay. */
+@Composable
+internal fun BoxScope.HelpDialogContent(onClose: () -> Unit) {
+    // dim the underlying screen
+    Box(Modifier.size(ART_W, ART_H).background(Scrim).clickable { onClose() })
+
+    // dialog 150,509 780x901 radius 30
+    Box(Modifier.offset(150.dp, 510.dp).size(780.dp, 900.dp)
+        .clip(RoundedCornerShape(30.dp)).background(Cream)) {
             // orange top hairline
             Box(Modifier.fillMaxWidth().size(ART_W, 6.dp).background(Caramel))
 
@@ -262,7 +282,6 @@ fun HelpScreen(
                     fontWeight = FontWeight.W300, color = Muted)
             }
         }
-    }
 }
 
 @Composable

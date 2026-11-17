@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -15,6 +16,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,9 +44,9 @@ import com.jinuo.kiosk.ui.theme.WarmSand
 private val PAY_RED = androidx.compose.ui.graphics.Color(0xFFB33856)
 
 /**
- * Cart drawer over the shopping grid (v14: 06-cart is a drawer on 04-shopping).
- * [items] is the live cart; [onQty] updates quantity (delta -1 / +1);
- * [onClose] returns to shopping; [onPay] goes to order confirmation.
+ * Cart drawer over the shopping grid. The standalone [CartScreen] keeps its
+ * own background (for deep links / previews); [CartOverlay] is the real v14
+ * bottom sheet stacked on top of whatever page is showing.
  */
 @Composable
 fun CartScreen(
@@ -48,25 +56,60 @@ fun CartScreen(
     onClose: () -> Unit,
     onPay: () -> Unit,
 ) {
-    val count = items.sumOf { it.qty }
-    val subtotal = items.sumOf { it.lineTotal }
-    // The HTML mock shows a fixed discount/VAT example; for a live cart we show
-    // a simple 10% markdown example line, keeping the same visual structure.
-    val discount = Math.round(subtotal * 0.10 * 100) / 100.0
-    val total = Math.round((subtotal - discount) * 100) / 100.0
-
     Artboard(modifier = modifier) {
         KioskBackground(category = "CLASSICS", onCategory = {}, onProduct = {})
+        CartDrawerBody(items = items, onQty = onQty, onClose = onClose, onPay = onPay)
+    }
+}
 
-        // scrim
-        Box(Modifier.size(ART_W, ART_H).background(Scrim).clickable { onClose() })
+/**
+ * Bottom sheet over the current page: dims the page behind it (no separate
+ * navigation), then a 900x749 panel that slides up from the bottom.
+ */
+@Composable
+internal fun CartOverlay(
+    modifier: Modifier = Modifier,
+    items: List<CartItem>,
+    onQty: (Int, Int) -> Unit,
+    onClose: () -> Unit,
+    onPay: () -> Unit,
+) {
+    OverlayBoard(modifier = modifier) {
+        CartDrawerBody(items = items, onQty = onQty, onClose = onClose, onPay = onPay)
+    }
+}
 
-        // drawer panel 90,1171 900x750, rounded top
-        Box(
-            modifier = Modifier.offset(90.dp, 1171.dp).size(900.dp, 749.dp)
-                .clip(RoundedCornerShape(28.dp))
-                .background(Cream),
-        ) {
+/** Scrim + drag-to-dismiss sheet, shared by the page and the overlay. */
+@Composable
+internal fun BoxScope.CartDrawerBody(
+    items: List<CartItem>,
+    onQty: (Int, Int) -> Unit,
+    onClose: () -> Unit,
+    onPay: () -> Unit,
+) {
+    val count = items.sumOf { it.qty }
+    val subtotal = items.sumOf { it.lineTotal }
+    // HTML 06-cart shows only Subtotal + Total (no itemised discount line).
+    val total = Math.round(subtotal * 100) / 100.0
+
+    // scrim (tap outside to close)
+    Box(Modifier.size(ART_W, ART_H).background(Scrim).clickable { onClose() })
+
+    // slide-up animation on entry
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    val slide by animateDpAsState(
+        targetValue = if (shown) 0.dp else 360.dp,
+        animationSpec = tween(240),
+        label = "cartSheet",
+    )
+
+    // drawer panel 90,1171 900x750, rounded top
+    Box(
+        modifier = Modifier.offset(90.dp, 1171.dp + slide).size(900.dp, 749.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(Cream),
+    ) {
             // drag handle
             Box(
                 Modifier.offset(410.dp, 16.dp).size(80.dp, 6.dp)
@@ -105,11 +148,10 @@ fun CartScreen(
                 }
             }
 
-            // totals block
+            // totals — HTML 06-cart shows Subtotal + Total only
             Box(Modifier.offset(0.dp, 452.dp).size(900.dp, 1.dp).background(SoftBorder))
             TotalLine("Subtotal", money(subtotal), 472f)
-            TotalLine("Discount (2nd drink at CHF 1)", "-" + money(discount), 512f, red = true)
-            TotalLine("Total", money(total), 552f, bold = true)
+            TotalLine("Total", money(total), 522f, bold = true)
 
             // Proceed to Pay 126,1750 828x96 (relative to drawer: 36,579)
             Box(
@@ -132,7 +174,6 @@ fun CartScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

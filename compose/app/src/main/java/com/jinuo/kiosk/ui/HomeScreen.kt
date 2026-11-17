@@ -47,6 +47,8 @@ private val SLIDES = listOf(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    langLabel: String = "English",
+    langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     onStart: () -> Unit = {},
     onLang: () -> Unit = {},
     onHelp: () -> Unit = {},
@@ -189,7 +191,7 @@ fun HomeScreen(
         }
 
         // bottom language / help buttons
-        BottomPill(64f, "\uD83C\uDDEC\uD83C\uDDE7", "English", onLang)
+        BottomPill(64f, langFlag, langLabel, onLang)
         BottomPill(550f, "?", "Help", onHelp)
     }
 }

@@ -38,6 +38,8 @@ import com.jinuo.kiosk.ui.theme.WarmSand
 internal fun PayHeader(
     timeLabel: String = "14:02",
     showBack: Boolean = true,
+    langLabel: String = "English",
+    langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     onBack: () -> Unit = {},
     onLang: () -> Unit = {},
     onHelp: () -> Unit = {},
@@ -71,7 +73,7 @@ internal fun PayHeader(
     )
 
     // English / Help pills
-    PayPill(716f, "English", onLang)
+    PayPill(716f, "$langFlag $langLabel", onLang)
     PayPill(888f, "Help", onHelp, width = 128f)
 }
 
@@ -89,8 +91,9 @@ private fun PayPill(x: Float, text: String, onClick: () -> Unit, width: Float = 
             text,
             fontFamily = Fraunces,
             fontWeight = FontWeight.W600,
-            fontSize = 24.sp,
+            fontSize = 22.sp,
             color = Ink,
+            maxLines = 1,
         )
     }
 }

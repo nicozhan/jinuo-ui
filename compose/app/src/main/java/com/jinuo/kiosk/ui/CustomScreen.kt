@@ -126,6 +126,8 @@ fun CustomScreen(
     modifier: Modifier = Modifier,
     initialProductId: String = "americano",
     startWithModal: Boolean = true,
+    langLabel: String = "English",
+    langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     cartCount: Int = 0,
     cartTotal: Double = 0.0,
     onAddToCart: (CartItem) -> Unit = {},
@@ -158,6 +160,8 @@ fun CustomScreen(
             category = category,
             onCategory = { category = it },
             onProduct = { if (!showModal) openProduct(it) },
+            langLabel = langLabel,
+            langFlag = langFlag,
             onLang = onLang,
             onHelp = onHelp,
             onBack = onBack,
@@ -204,6 +208,8 @@ internal fun KioskBackground(
     category: String,
     onCategory: (String) -> Unit,
     onProduct: (Product) -> Unit,
+    langLabel: String = "English",
+    langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     onLang: () -> Unit = {},
     onHelp: () -> Unit = {},
     onBack: (() -> Unit)? = null,
@@ -232,7 +238,7 @@ internal fun KioskBackground(
             Text("←", fontFamily = InstrumentSans, fontSize = 26.sp, color = Ink)
         }
     }
-    TopPill(x = 485f, text = "English", withFlag = true, onClick = onLang)
+    TopPill(x = 485f, text = langLabel, flag = langFlag, onClick = onLang)
     TopPill(x = 755f, text = "Help", withFlag = false, onClick = onHelp)
 
     // banner y = 132..492
@@ -354,7 +360,13 @@ internal fun StatusText(text: String, x: Float, w: Float) {
 }
 
 @Composable
-internal fun TopPill(x: Float, text: String, withFlag: Boolean, onClick: () -> Unit = {}) {
+internal fun TopPill(
+    x: Float,
+    text: String,
+    withFlag: Boolean = true,
+    flag: String = "\uD83C\uDDEC\uD83C\uDDE7",
+    onClick: () -> Unit = {},
+) {
     Box(
         modifier = Modifier.offset(x.dp, 71.dp).size(250.dp, 55.dp)
             .clip(CircleShape)
@@ -365,7 +377,7 @@ internal fun TopPill(x: Float, text: String, withFlag: Boolean, onClick: () -> U
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (withFlag) {
-                Text("\uD83C\uDDEB\uD83C\uDDF7", fontSize = 20.sp)
+                Text(flag, fontSize = 20.sp)
             } else {
                 Box(
                     Modifier.size(22.dp).clip(CircleShape).border(1.dp, SoftBorder, CircleShape),
@@ -379,8 +391,9 @@ internal fun TopPill(x: Float, text: String, withFlag: Boolean, onClick: () -> U
                 modifier = Modifier.padding(start = 12.dp),
                 fontFamily = InstrumentSans,
                 fontWeight = FontWeight.W600,
-                fontSize = 23.sp,
+                fontSize = 21.sp,
                 color = Ink,
+                maxLines = 1,
             )
         }
     }
