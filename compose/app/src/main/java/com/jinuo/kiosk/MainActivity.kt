@@ -4,11 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.jinuo.kiosk.ui.CustomScreen
+import com.jinuo.kiosk.ui.KioskApp
+import com.jinuo.kiosk.ui.Screen
 import com.jinuo.kiosk.ui.theme.KioskTheme
 
 /**
@@ -33,8 +37,34 @@ class MainActivity : ComponentActivity() {
             .hide(WindowInsetsCompat.Type.systemBars())
 
         setContent {
-            KioskTheme {
-                CustomScreen(modifier = Modifier.fillMaxSize())
+            // The whole UI is authored in Figma artboard pixels (1080x1920),
+            // treating 1 design px == 1 dp. Pin density to 1 so this holds on
+            // every device: the 1080dp board maps to exactly 1080 physical px
+            // and matches both the Compose Preview and the HTML prototype.
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                KioskTheme {
+                    // Optional debug deep-link: `am start --es screen <name> [--ez cart true]`
+                    // Names: home | lang | help | shopping | custom | cart |
+                    //        orderconfirm | cardpay | wrong | paysuccess | making | ready
+                    val start = when (intent?.getStringExtra("screen")) {
+                        "lang" -> Screen.Lang
+                        "help" -> Screen.Help
+                        "shopping" -> Screen.Shopping
+                        "custom" -> Screen.Custom(intent.getStringExtra("product") ?: "americano")
+                        "cart" -> Screen.Cart()
+                        "orderconfirm" -> Screen.OrderConfirm
+                        "cardpay" -> Screen.CardPay
+                        "wrong" -> Screen.Wrong
+                        "paysuccess" -> Screen.PaySuccess
+                        "making" -> Screen.Making
+                        "ready" -> Screen.Ready
+                        else -> Screen.Home
+                    }
+                    KioskApp(
+                        initialScreen = start,
+                        initialCart = intent?.getBooleanExtra("cart", false) == true,
+                    )
+                }
             }
         }
     }

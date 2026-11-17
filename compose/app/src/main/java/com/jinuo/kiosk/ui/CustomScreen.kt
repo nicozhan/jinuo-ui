@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -77,22 +78,31 @@ import com.jinuo.kiosk.ui.theme.WarmSand
    Artboard: every child below uses 1080 x 1920 design coordinates.
    1 design px == 1 dp; the whole tree is uniformly scaled to the device.
    --------------------------------------------------------------------------- */
-private val ART_W = 1080.dp
-private val ART_H = 1920.dp
+val ART_W = 1080.dp
+val ART_H = 1920.dp
 
 @Composable
-private fun Artboard(
+internal fun Artboard(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    BoxWithConstraints(modifier = modifier.background(Outer)) {
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Outer),
+    ) {
+        // maxWidth/maxHeight are the available space in design dp; the artboard
+        // itself is fixed at 1080x1920 dp. Scale uniformly to fit (contain).
         val scale = minOf(maxWidth / ART_W, maxHeight / ART_H)
         val left = (maxWidth - ART_W * scale) / 2
         val top = (maxHeight - ART_H * scale) / 2
         Box(
             modifier = Modifier
                 .offset(left, top)
-                .size(ART_W, ART_H)
+                // requiredSize ignores the parent's max constraint so the board
+                // keeps its full 1080x1920 design size; graphicsLayer then scales
+                // it to fit (scale is 1.0 when density is pinned to 1).
+                .requiredSize(ART_W, ART_H)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
@@ -112,10 +122,22 @@ private fun Artboard(
    modal for that drink (so Caramel Macchiato's 4-step sweetness is reachable).
    --------------------------------------------------------------------------- */
 @Composable
-fun CustomScreen(modifier: Modifier = Modifier, initialProductId: String = "americano") {
+fun CustomScreen(
+    modifier: Modifier = Modifier,
+    initialProductId: String = "americano",
+    startWithModal: Boolean = true,
+    cartCount: Int = 0,
+    cartTotal: Double = 0.0,
+    onAddToCart: (CartItem) -> Unit = {},
+    onCheckout: () -> Unit = {},
+    onCartClick: () -> Unit = {},
+    onLang: () -> Unit = {},
+    onHelp: () -> Unit = {},
+    onBack: (() -> Unit)? = null,
+) {
     var productId by remember { mutableStateOf(initialProductId) }
     var category by remember { mutableStateOf("CLASSICS") }
-    var showModal by remember { mutableStateOf(true) }
+    var showModal by remember { mutableStateOf(startWithModal) }
     var selections by remember {
         mutableStateOf(defaultSelections(CATALOG.first { it.id == initialProductId }))
     }
@@ -136,6 +158,9 @@ fun CustomScreen(modifier: Modifier = Modifier, initialProductId: String = "amer
             category = category,
             onCategory = { category = it },
             onProduct = { if (!showModal) openProduct(it) },
+            onLang = onLang,
+            onHelp = onHelp,
+            onBack = onBack,
         )
 
         if (showModal) {
@@ -151,6 +176,7 @@ fun CustomScreen(modifier: Modifier = Modifier, initialProductId: String = "amer
                 },
                 onClose = { showModal = false },
                 onAdd = {
+                    onAddToCart(CartItem(product, selections.toList()))
                     Toast.makeText(
                         context,
                         "Added to cart: ${product.name} · ${money(price)}",
@@ -158,13 +184,13 @@ fun CustomScreen(modifier: Modifier = Modifier, initialProductId: String = "amer
                     ).show()
                 },
                 onConfirm = {
-                    Toast.makeText(
-                        context,
-                        "Confirmed: ${product.name} · ${money(price)}",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    onAddToCart(CartItem(product, selections.toList()))
+                    onCheckout()
                 },
             )
+        } else if (cartCount > 0) {
+            // floating cart bar (v14: 04-shopping shows a "View Cart" strip)
+            CartBar(count = cartCount, total = cartTotal, onClick = onCartClick)
         }
     }
 }
@@ -174,10 +200,13 @@ fun CustomScreen(modifier: Modifier = Modifier, initialProductId: String = "amer
    pages/05-custom.html?debug=1.
    --------------------------------------------------------------------------- */
 @Composable
-private fun KioskBackground(
+internal fun KioskBackground(
     category: String,
     onCategory: (String) -> Unit,
     onProduct: (Product) -> Unit,
+    onLang: () -> Unit = {},
+    onHelp: () -> Unit = {},
+    onBack: (() -> Unit)? = null,
 ) {
     // status row y = 0..66
     StatusText("MACHINE ID · JAV-08-221", 64f, 280f)
@@ -192,8 +221,19 @@ private fun KioskBackground(
         modifier = Modifier.offset(64.dp, 73.dp).size(136.dp, 64.dp),
         contentScale = ContentScale.FillBounds,
     )
-    TopPill(x = 485f, text = "English", withFlag = true)
-    TopPill(x = 755f, text = "Help", withFlag = false)
+    if (onBack != null) {
+        Box(
+            modifier = Modifier.offset(232.dp, 75.dp).size(56.dp, 56.dp)
+                .clip(CircleShape).background(WarmSand)
+                .border(1.dp, Hairline, CircleShape)
+                .clickable { onBack() },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("←", fontFamily = InstrumentSans, fontSize = 26.sp, color = Ink)
+        }
+    }
+    TopPill(x = 485f, text = "English", withFlag = true, onClick = onLang)
+    TopPill(x = 755f, text = "Help", withFlag = false, onClick = onHelp)
 
     // banner y = 132..492
     Image(
@@ -299,7 +339,7 @@ private fun KioskBackground(
 }
 
 @Composable
-private fun StatusText(text: String, x: Float, w: Float) {
+internal fun StatusText(text: String, x: Float, w: Float) {
     Text(
         text = text,
         modifier = Modifier.offset(x.dp, 21.dp).size(w.dp, 24.dp),
@@ -314,12 +354,13 @@ private fun StatusText(text: String, x: Float, w: Float) {
 }
 
 @Composable
-private fun TopPill(x: Float, text: String, withFlag: Boolean) {
+internal fun TopPill(x: Float, text: String, withFlag: Boolean, onClick: () -> Unit = {}) {
     Box(
         modifier = Modifier.offset(x.dp, 71.dp).size(250.dp, 55.dp)
             .clip(CircleShape)
             .background(WarmSand)
-            .border(1.dp, Hairline, CircleShape),
+            .border(1.dp, Hairline, CircleShape)
+            .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -346,7 +387,7 @@ private fun TopPill(x: Float, text: String, withFlag: Boolean) {
 }
 
 @Composable
-private fun ProductCard(index: Int, product: Product, onProduct: (Product) -> Unit) {
+internal fun ProductCard(index: Int, product: Product, onProduct: (Product) -> Unit) {
     val badge = when (index % 3) {
         0 -> "Most Popular"
         1 -> "Top Pick"
@@ -547,7 +588,7 @@ private fun ConfigModal(
 }
 
 @Composable
-private fun CtaButton(x: Float, label: String, background: androidx.compose.ui.graphics.Color, onClick: () -> Unit) {
+internal fun CtaButton(x: Float, label: String, background: androidx.compose.ui.graphics.Color, onClick: () -> Unit) {
     Box(
         modifier = Modifier.offset(x.dp, 889.dp).size(326.dp, 72.dp)
             .clip(CircleShape)
@@ -567,8 +608,38 @@ private fun CtaButton(x: Float, label: String, background: androidx.compose.ui.g
     }
 }
 
+/** v14 floating cart strip on 04-shopping (90,1659 900x96). */
 @Composable
-private fun CloseIcon() {
+internal fun CartBar(count: Int, total: Double, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier.offset(90.dp, 1659.dp).size(900.dp, 96.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(androidx.compose.ui.graphics.Color(0xBF000000))
+            .clickable { onClick() },
+    ) {
+        Text(
+            "View Cart",
+            modifier = Modifier.offset(48.dp, 28.dp).size(400.dp, 44.dp),
+            fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 32.sp, color = Cream,
+        )
+        Text(
+            "($count)  " + money(total),
+            modifier = Modifier.offset(430.dp, 30.dp).size(340.dp, 40.dp),
+            fontFamily = Fraunces, fontSize = 30.sp, color = Cream,
+            textAlign = TextAlign.End,
+        )
+        Box(
+            modifier = Modifier.offset(810.dp, 24.dp).size(48.dp, 48.dp)
+                .clip(RoundedCornerShape(14.dp)).background(Caramel),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("→", fontFamily = InstrumentSans, fontSize = 30.sp, color = Cream)
+        }
+    }
+}
+
+@Composable
+internal fun CloseIcon() {
     Canvas(Modifier.size(20.dp)) {
         val stroke = 2.dp.toPx()
         drawLine(Ink, Offset(0f, 0f), Offset(size.width, size.height), strokeWidth = stroke)
