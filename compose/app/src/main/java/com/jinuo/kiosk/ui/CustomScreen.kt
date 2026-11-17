@@ -1,6 +1,5 @@
 package com.jinuo.kiosk.ui
 
-import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,7 +39,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -147,7 +145,6 @@ fun CustomScreen(
     val product = CATALOG.first { it.id == productId }
     val groups = schemaOf(product)
     val price = unitPriceOf(product, selections)
-    val context = LocalContext.current
 
     fun openProduct(next: Product) {
         productId = next.id
@@ -180,12 +177,10 @@ fun CustomScreen(
                 },
                 onClose = { showModal = false },
                 onAdd = {
+                    // v15.5: add → dismiss the config modal → open & expand the cart sheet
                     onAddToCart(CartItem(product, selections.toList()))
-                    Toast.makeText(
-                        context,
-                        "Added to cart: ${product.name} · ${money(price)}",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    showModal = false
+                    onCheckout()
                 },
                 onConfirm = {
                     onAddToCart(CartItem(product, selections.toList()))

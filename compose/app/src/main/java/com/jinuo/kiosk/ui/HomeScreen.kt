@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -60,11 +61,11 @@ fun HomeScreen(
         StatusText("14:00", 924f, 100f)
         Box(Modifier.offset(0.dp, 66.dp).size(ART_W, 1.dp).background(Hairline))
 
-        // logo 64,73 136x64
+        // logo centered at horizontal midline (v15.5)
         Image(
             painter = painterResource(R.drawable.kiosk_logo),
             contentDescription = "Jinuo Coffee",
-            modifier = Modifier.offset(64.dp, 73.dp).size(136.dp, 64.dp),
+            modifier = Modifier.offset(404.dp, 73.dp).size(272.dp, 108.dp),
             contentScale = ContentScale.Fit,
         )
 
@@ -88,7 +89,7 @@ fun HomeScreen(
                     .background(androidx.compose.ui.graphics.Color(0x99000000)),
             )
 
-            // eyebrow + headline near the bottom of the banner
+            // eyebrow + headline near the bottom of the banner (centered)
             Text(
                 SLIDES[slide].eyebrow,
                 modifier = Modifier.offset(48.dp, 715.dp).size(856.dp, 30.dp),
@@ -97,15 +98,17 @@ fun HomeScreen(
                 fontSize = 19.sp,
                 letterSpacing = 4.56.sp,
                 color = Cream,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
             Text(
                 SLIDES[slide].headline,
-                modifier = Modifier.offset(48.dp, 752.dp).size(800.dp, 170.dp),
+                modifier = Modifier.offset(48.dp, 752.dp).size(856.dp, 170.dp),
                 fontFamily = Fraunces,
                 fontWeight = FontWeight.W600,
                 fontSize = 72.sp,
                 lineHeight = 76.sp,
                 color = Cream,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
 
             // prev / next chevrons
@@ -155,7 +158,7 @@ fun HomeScreen(
             }
         }
 
-        // Accepted Payments
+        // Accepted Payments — centered (v15.5)
         Text(
             "ACCEPTED PAYMENTS",
             modifier = Modifier.offset(190.dp, 1307.dp).size(700.dp, 34.dp),
@@ -164,6 +167,7 @@ fun HomeScreen(
             fontSize = 28.sp,
             letterSpacing = 3.2.sp,
             color = Muted,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
         PayCard(64f, R.drawable.ic_card, "Card")
         PayCard(388f, R.drawable.ic_tap, "Tap")
@@ -207,15 +211,16 @@ private fun PayCard(x: Float, icon: Int, label: String) {
         Image(
             painter = painterResource(icon),
             contentDescription = null,
-            modifier = Modifier.offset(28.dp, 36.dp).size(40.dp, 40.dp),
+            modifier = Modifier.offset(132.dp, 14.dp).size(40.dp, 40.dp),
         )
         Text(
             label,
-            modifier = Modifier.offset(84.dp, 38.dp).size(200.dp, 40.dp),
+            modifier = Modifier.offset(0.dp, 60.dp).fillMaxWidth(),
             fontFamily = Fraunces,
             fontWeight = FontWeight.W600,
             fontSize = 28.sp,
             color = Ink,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
     }
 }
@@ -228,11 +233,9 @@ private fun BottomPill(x: Float, icon: String, label: String, onClick: () -> Uni
             .background(Cream)
             .border(1.dp, SoftBorder, RoundedCornerShape(20.dp))
             .clickable { onClick() },
+        contentAlignment = Alignment.Center,
     ) {
-        Row(
-            modifier = Modifier.offset(30.dp, 25.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(icon, fontSize = 30.sp, color = Caramel)
             Text(
                 label,

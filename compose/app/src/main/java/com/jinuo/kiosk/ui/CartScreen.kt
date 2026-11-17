@@ -127,9 +127,19 @@ internal fun BoxScope.CartDrawerBody(
                 "$count items in your cart",
                 modifier = Modifier.offset(36.dp, 92.dp).size(500.dp, 26.dp),
                 fontFamily = InstrumentSans,
-                fontSize = 15.sp,
+                fontSize = 18.sp,
                 color = Muted,
             )
+            // v15.5 · limit hint shown when the 3-item cap is reached
+            if (count >= 3) {
+                Text(
+                    "Maximum 3 items per order",
+                    modifier = Modifier.offset(470.dp, 92.dp).size(390.dp, 26.dp),
+                    fontFamily = InstrumentSans, fontWeight = FontWeight.W600,
+                    fontSize = 18.sp, color = com.jinuo.kiosk.ui.theme.PriceRed,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                )
+            }
             // close X
             Box(
                 modifier = Modifier.offset(822.dp, 44.dp).size(42.dp, 42.dp)
@@ -138,7 +148,7 @@ internal fun BoxScope.CartDrawerBody(
                 contentAlignment = Alignment.Center,
             ) { CloseIcon() }
 
-            // item rows
+            // item rows (max 3 — see KioskApp.addToCart)
             LazyColumn(
                 modifier = Modifier.offset(36.dp, 132.dp).size(828.dp, 300.dp),
                 verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
@@ -150,8 +160,8 @@ internal fun BoxScope.CartDrawerBody(
 
             // totals — HTML 06-cart shows Subtotal + Total only
             Box(Modifier.offset(0.dp, 452.dp).size(900.dp, 1.dp).background(SoftBorder))
-            TotalLine("Subtotal", money(subtotal), 472f)
-            TotalLine("Total", money(total), 522f, bold = true)
+            TotalLine("Subtotal", money(subtotal), 470f)
+            TotalLine("Total", money(total), 524f, bold = true)
 
             // Proceed to Pay 126,1750 828x96 (relative to drawer: 36,579)
             Box(
@@ -178,7 +188,9 @@ internal fun BoxScope.CartDrawerBody(
 
 @Composable
 private fun CartRow(index: Int, item: CartItem, onQty: (Int, Int) -> Unit) {
-    // Pure absolute layout inside the 828 px row so nothing is pushed off-edge.
+    // v15.5: fonts here match the product card (name 24 / price 24), and the
+    // minus / count / plus controls share one vertically-centred Row so the
+    // three of them sit on exactly the same horizontal line.
     Box(Modifier.fillMaxWidth().size(828.dp, 104.dp)) {
         Image(
             painter = painterResource(item.product.card),
@@ -189,41 +201,46 @@ private fun CartRow(index: Int, item: CartItem, onQty: (Int, Int) -> Unit) {
         )
         Text(
             item.product.name,
-            modifier = Modifier.offset(96.dp, 18.dp).size(330.dp, 32.dp),
-            fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 22.sp,
+            modifier = Modifier.offset(96.dp, 16.dp).size(330.dp, 34.dp),
+            fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 24.sp,
             color = Ink, maxLines = 1,
         )
         Text(
             item.spec,
-            modifier = Modifier.offset(96.dp, 54.dp).size(330.dp, 28.dp),
-            fontFamily = InstrumentSans, fontSize = 14.sp, color = Muted, maxLines = 1,
+            modifier = Modifier.offset(96.dp, 56.dp).size(330.dp, 30.dp),
+            fontFamily = InstrumentSans, fontSize = 18.sp, color = Muted, maxLines = 1,
         )
         Text(
             money(item.lineTotal),
-            modifier = Modifier.offset(440.dp, 30.dp).size(150.dp, 40.dp),
-            fontFamily = Fraunces, fontSize = 18.sp, fontWeight = FontWeight.W600, color = Ink,
+            modifier = Modifier.offset(430.dp, 32.dp).size(160.dp, 40.dp),
+            fontFamily = Fraunces, fontSize = 24.sp, fontWeight = FontWeight.W600, color = Ink,
             textAlign = androidx.compose.ui.text.style.TextAlign.End,
         )
-        // quantity control
-        QtyButton("−", SoftBorder, Ink, 610f) { onQty(index, -1) }
-        Text(
-            "${item.qty}",
-            modifier = Modifier.offset(656.dp, 32.dp).size(52.dp, 40.dp),
-            fontFamily = InstrumentSans, fontSize = 20.sp, color = Ink,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-        )
-        QtyButton("+", Ink, Cream, 714f) { onQty(index, 1) }
+        // quantity control: all three centred on one line (y = 32, height 40)
+        Row(
+            modifier = Modifier.offset(606.dp, 32.dp).size(222.dp, 40.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            QtyButton("−", SoftBorder, Ink) { onQty(index, -1) }
+            Text(
+                "${item.qty}",
+                modifier = Modifier.size(62.dp, 40.dp),
+                fontFamily = InstrumentSans, fontWeight = FontWeight.W600, fontSize = 24.sp, color = Ink,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+            QtyButton("+", Ink, Cream) { onQty(index, 1) }
+        }
     }
 }
 
 @Composable
-private fun QtyButton(label: String, bg: androidx.compose.ui.graphics.Color, fg: androidx.compose.ui.graphics.Color, x: Float, onClick: () -> Unit) {
+private fun QtyButton(label: String, bg: androidx.compose.ui.graphics.Color, fg: androidx.compose.ui.graphics.Color, onClick: () -> Unit) {
     Box(
-        modifier = Modifier.offset(x.dp, 32.dp).size(40.dp, 40.dp).clip(RoundedCornerShape(12.dp))
+        modifier = Modifier.size(40.dp, 40.dp).clip(RoundedCornerShape(12.dp))
             .background(bg).clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, fontFamily = InstrumentSans, fontSize = 22.sp, color = fg)
+        Text(label, fontFamily = InstrumentSans, fontSize = 26.sp, color = fg)
     }
 }
 
@@ -231,17 +248,17 @@ private fun QtyButton(label: String, bg: androidx.compose.ui.graphics.Color, fg:
 private fun TotalLine(label: String, value: String, y: Float, bold: Boolean = false, red: Boolean = false) {
     Text(
         label,
-        modifier = Modifier.offset(36.dp, y.dp).size(560.dp, 32.dp),
+        modifier = Modifier.offset(36.dp, y.dp).size(560.dp, 40.dp),
         fontFamily = InstrumentSans,
-        fontSize = if (bold) 20.sp else 15.sp,
+        fontSize = if (bold) 24.sp else 20.sp,
         fontWeight = if (bold) FontWeight.W600 else FontWeight.Normal,
         color = if (bold) Ink else Muted,
     )
     Text(
         value,
-        modifier = Modifier.offset(600.dp, y.dp).size(264.dp, 32.dp),
+        modifier = Modifier.offset(600.dp, y.dp).size(264.dp, 40.dp),
         fontFamily = Fraunces,
-        fontSize = if (bold) 24.sp else 16.sp,
+        fontSize = if (bold) 28.sp else 22.sp,
         fontWeight = FontWeight.W600,
         color = if (red) com.jinuo.kiosk.ui.theme.PriceRed else Ink,
         textAlign = androidx.compose.ui.text.style.TextAlign.End,

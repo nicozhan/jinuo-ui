@@ -424,15 +424,26 @@ fun MakingScreen(
         }
 
         // four-stage strip
-        Text("PREPARING YOUR CUP · $stage/4",
+        // v15.5 · four states (1/4 … 4/4). The whole board is one left-click
+    // target: each tap advances exactly one stage, the 4th enters 18-ready.
+        Text(
+            "PREPARING YOUR CUP · $stage/4",
             modifier = Modifier.offset(64.dp, 1656.dp).size(952.dp, 34.dp),
             fontFamily = InstrumentSans, fontWeight = FontWeight.W600,
             fontSize = 24.sp, letterSpacing = 2.4.sp, color = Muted,
-            textAlign = TextAlign.Center)
+            textAlign = TextAlign.Center,
+        )
         BrewStrip(stage = stage, filled = false)
 
-        // tap anywhere to advance (mirrors the HTML auto-flow / skip)
-        Box(Modifier.offset(0.dp, 0.dp).size(ART_W, 300.dp).clickable { onDone() })
+        Text(
+            "Tap anywhere to advance  ·  $stage of 4",
+            modifier = Modifier.offset(0.dp, 1830.dp).fillMaxWidth(),
+            fontFamily = InstrumentSans, fontSize = 20.sp, color = Muted.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center,
+        )
+
+        // entire artboard is a single left-click target (mirrors the HTML skip/auto flow)
+        Box(Modifier.size(ART_W, ART_H).clickable { onDone() })
     }
 }
 

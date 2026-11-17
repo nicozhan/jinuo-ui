@@ -37,7 +37,7 @@ fun KioskApp(
     // cart is shared by every page
     val cart = remember {
         mutableStateListOf<CartItem>().apply {
-            if (initialCart) {
+            if (initialCart || initialScreen is Screen.OrderConfirm) {
                 add(CartItem(com.jinuo.kiosk.data.CATALOG[0], listOf(1, 1, 1)))
                 add(CartItem(com.jinuo.kiosk.data.CATALOG[1], listOf(1, 1, 1)))
                 add(CartItem(com.jinuo.kiosk.data.CATALOG[2], com.jinuo.kiosk.data.defaultSelections(com.jinuo.kiosk.data.CATALOG[2])))
@@ -54,13 +54,25 @@ fun KioskApp(
 
     var showHomeConfirm by remember { mutableStateOf(false) }
     var payAmount by remember { mutableStateOf<Double>(8.0) }
-    var brewStage by remember { mutableStateOf(0) }
+    var brewStage by remember { mutableStateOf(1) }   // v15.5 · states 1..4
 
     val cartCount = cart.sumOf { it.qty }
     val cartTotal = cart.sumOf { it.lineTotal }
     val lang = langByCode(langCode)
 
+    // v15.5 · cart is capped at 3 distinct product lines (matches the 3-row
+    // order layout). Exceeding it is rejected with a visible prompt.
+    val maxCartItems = 3
+    var cartLimitHint by remember { mutableStateOf(false) }
+
     fun addToCart(item: CartItem) {
+        if (cart.size >= maxCartItems &&
+            cart.none { it.product.id == item.product.id && it.selections == item.selections }
+        ) {
+            cartLimitHint = true
+            Toast.makeText(context, "Cart limit reached · maximum 3 items per order", Toast.LENGTH_SHORT).show()
+            return
+        }
         val idx = cart.indexOfFirst { it.product.id == item.product.id && it.selections == item.selections }
         if (idx >= 0) cart[idx] = cart[idx].copy(qty = cart[idx].qty + item.qty)
         else cart.add(item)
@@ -169,7 +181,7 @@ fun KioskApp(
                 onHelp = { helpOpen = true },
                 onDone = {
                     // happy path → 16-pay; error page reachable via deep link
-                    brewStage = 0
+                    brewStage = 1
                     screen = Screen.PaySuccess
                 },
             )
@@ -184,11 +196,11 @@ fun KioskApp(
                 onBack = { askHomeConfirm() },
                 onLang = { openLang(700f, 155f) },
                 onHelp = { helpOpen = true },
-                onContinue = { brewStage = 0; screen = Screen.Making },
+                onContinue = { brewStage = 1; screen = Screen.Making },
             )
 
             is Screen.Making -> MakingScreen(
-                stage = brewStage.coerceIn(0, 4),
+                stage = brewStage.coerceIn(1, 4),
                 onDone = {
                     if (brewStage < 4) brewStage += 1 else screen = Screen.Ready
                 },

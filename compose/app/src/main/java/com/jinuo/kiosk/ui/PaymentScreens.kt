@@ -81,43 +81,54 @@ fun OrderConfirmScreen(
             Text("${items.sumOf { it.qty }} items", modifier = Modifier.offset(770.dp, 34.dp).size(150.dp, 26.dp),
                 fontFamily = InstrumentSans, fontSize = 14.sp, color = Muted)
 
-            items.take(4).forEachIndexed { i, item ->
+            // v15.5 · order list is exactly 3 product rows (HTML f45: 886.78x337.25,
+            // three 112.62px rows). Each row carries a hairline like the Figma art.
+            val shown = items.take(3)
+            for (i in 0 until 3) {
+                Box(
+                    modifier = Modifier.offset(33.dp, (78 + i * 112.62f).dp)
+                        .size(886.dp, 112.dp)
+                        .border(1.dp, Hairline, RoundedCornerShape(0.dp)),
+                )
+            }
+            shown.forEachIndexed { i, item ->
                 Image(
                     painter = painterResource(item.product.card),
                     contentDescription = item.product.name,
-                    modifier = Modifier.offset(32.dp, 78.dp + (i * 112).dp).size(80.dp, 80.dp)
+                    modifier = Modifier.offset(48.dp, (92 + (i * 112.62f).toInt()).dp).size(80.dp, 80.dp)
                         .clip(RoundedCornerShape(16.dp)).background(WarmSand),
                     contentScale = ContentScale.Crop,
                 )
                 Text(item.product.name,
-                    modifier = Modifier.offset(130.dp, 86.dp + (i * 112).dp).size(430.dp, 30.dp),
+                    modifier = Modifier.offset(145.dp, (100 + (i * 112.62f).toInt()).dp).size(430.dp, 30.dp),
                     fontFamily = Fraunces, fontSize = 22.sp, color = Ink, maxLines = 1)
                 Text(item.spec,
-                    modifier = Modifier.offset(130.dp, 120.dp + (i * 112).dp).size(430.dp, 26.dp),
+                    modifier = Modifier.offset(145.dp, (134 + (i * 112.62f).toInt()).dp).size(430.dp, 26.dp),
                     fontFamily = InstrumentSans, fontSize = 16.sp, color = Muted, maxLines = 1)
                 Text("×${item.qty}",
-                    modifier = Modifier.offset(600.dp, 90.dp + (i * 112).dp).size(70.dp, 28.dp),
+                    modifier = Modifier.offset(600.dp, (104 + (i * 112.62f).toInt()).dp).size(70.dp, 28.dp),
                     fontFamily = InstrumentSans, fontWeight = FontWeight.W600, fontSize = 16.sp, color = Ink)
                 Text(money(item.lineTotal),
-                    modifier = Modifier.offset(720.dp, 90.dp + (i * 112).dp).size(200.dp, 28.dp),
+                    modifier = Modifier.offset(720.dp, (104 + (i * 112.62f).toInt()).dp).size(180.dp, 28.dp),
                     fontFamily = Fraunces, fontSize = 18.sp, color = Ink,
                     textAlign = androidx.compose.ui.text.style.TextAlign.End)
             }
 
             // totals
-            ConfirmTotal("Subtotal:", money(subtotal), 470f)
-            ConfirmTotal("Discount (2nd drink at CHF 1):", "-" + money(discount), 522f, red = true)
-            ConfirmTotal("VAT Amount (7.7%):", money(vat), 574f)
+            ConfirmTotal("Subtotal:", money(subtotal), 452f)
+            ConfirmTotal("Discount (2nd drink at CHF 1):", "-" + money(discount), 498f, red = true)
+            ConfirmTotal("VAT Amount (7.7%):", money(vat), 544f)
+            // v15.5 · Total bar and PAY button share the exact same geometry (886x96).
             Box(
-                modifier = Modifier.offset(32.dp, 620.dp).size(888.dp, 70.dp)
+                modifier = Modifier.offset(33.dp, 590.dp).size(886.dp, 96.dp)
                     .clip(RoundedCornerShape(16.dp)).background(Muted.copy(alpha = 0.75f)),
             ) {
                 Text("Total (incl. VAT):",
-                    modifier = Modifier.offset(32.dp, 17.dp).size(500.dp, 40.dp),
+                    modifier = Modifier.offset(32.dp, 26.dp).size(500.dp, 44.dp),
                     fontFamily = InstrumentSans,
                     fontWeight = FontWeight.W600, fontSize = 24.sp, color = Cream)
                 Text(money(total),
-                    modifier = Modifier.offset(560.dp, 15.dp).size(296.dp, 44.dp),
+                    modifier = Modifier.offset(550.dp, 24.dp).size(300.dp, 48.dp),
                     fontFamily = Fraunces, fontSize = 30.sp,
                     color = Cream, textAlign = androidx.compose.ui.text.style.TextAlign.End)
             }
