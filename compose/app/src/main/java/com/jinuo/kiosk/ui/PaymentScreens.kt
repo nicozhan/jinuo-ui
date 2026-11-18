@@ -232,36 +232,28 @@ fun CardPayScreen(
             modifier = Modifier.offset(140.dp, 160.dp).size(800.dp, 48.dp),
             fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 40.sp,
             color = Ink, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-        Text("Please pay at the POS terminal.",
-            modifier = Modifier.offset(200.dp, 220.dp).size(680.dp, 34.dp),
+        Text("Go to the POS terminal to complete payment.",
+            modifier = Modifier.offset(160.dp, 220.dp).size(760.dp, 34.dp),
             fontFamily = InstrumentSans, fontSize = 24.sp, color = Muted,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center)
 
-        // POS terminal illustration — stylised card reader
-        Box(
-            modifier = Modifier.offset(330.dp, 302.dp).size(420.dp, 512.dp)
-                .clip(RoundedCornerShape(42.dp))
-                .background(androidx.compose.ui.graphics.Color(0xFF111111))
-                .border(10.dp, androidx.compose.ui.graphics.Color(0xFF111111), RoundedCornerShape(42.dp))
-                .clickable { onDone() },
-        ) {
-            // screen
-            Box(Modifier.offset(50.dp, 46.dp).size(320.dp, 210.dp)
-                .clip(RoundedCornerShape(16.dp)).background(androidx.compose.ui.graphics.Color(0xFFDCE3F1)))
-            Text("€", modifier = Modifier.offset(150.dp, 110.dp).size(120.dp, 80.dp),
-                fontFamily = Fraunces, fontSize = 60.sp, color = androidx.compose.ui.graphics.Color(0xFF5A4432),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            // keypad
-            for (row in 0..3) for (col in 0..2) {
-                Box(Modifier.offset((60 + col * 100).dp, (290 + row * 48).dp).size(70.dp, 36.dp)
-                    .clip(RoundedCornerShape(10.dp)).background(androidx.compose.ui.graphics.Color(0xFF2A2A2A)))
-            }
-        }
+        // v15.6 · the static card-reader illustration is replaced by the native
+        // looping contactless animation (SVG/CSS reference → Compose Canvas).
+        // It shows a card approaching the reader, three waves spreading out
+        // and the halo fading — guiding the guest to the POS terminal.
+        TapCardAnimation(
+            modifier = Modifier.offset(220.dp, 280.dp).size(640.dp),
+        )
 
-        Text("Follow the instructions on the POS terminal.",
-            modifier = Modifier.offset(280.dp, 840.dp).size(520.dp, 90.dp),
-            fontFamily = InstrumentSans, fontSize = 20.sp, color = com.jinuo.kiosk.ui.theme.Caramel,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 28.sp)
+        Text("→  GO TO THE POS TERMINAL",
+            modifier = Modifier.offset(210.dp, 856.dp).size(660.dp, 56.dp),
+            fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 30.sp,
+            color = PAY_RED,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Text("Tap your card, then follow the screen on the terminal",
+            modifier = Modifier.offset(160.dp, 920.dp).size(760.dp, 40.dp),
+            fontFamily = InstrumentSans, fontSize = 19.sp, color = Muted,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
 
         // amount card 260,1018 560x160
         Box(Modifier.offset(260.dp, 1018.dp).size(560.dp, 160.dp)
