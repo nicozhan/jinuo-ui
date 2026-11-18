@@ -209,9 +209,10 @@ internal fun KioskBackground(
     onHelp: () -> Unit = {},
     onBack: (() -> Unit)? = null,
 ) {
-    /* v16 · one scrolling page, one section per category. Each section renders
-       only its real products; rows of 1/2/3 cards never stretch and incomplete
-       rows are centred. Every measurement stays identical to the old 3-col grid. */
+    /* v17 · one scrolling page, one section per category. Each section renders
+       only its real products; rows of 1/2/3 cards never stretch and every row
+       is centred. The 0..495 artboard top and the cart strip at y=1659 are
+       untouched; everything below the category bar is vertically compacted. */
     val grid = remember {
         val secs = CATS.map { cat ->
             val list = CATALOG.filter { it.category == cat }
@@ -267,14 +268,14 @@ internal fun KioskBackground(
         contentScale = ContentScale.Crop,
     )
 
-    // category bar y = 495..571
+    // category bar y = 495..559 (v17: 64px tall, was 77)
     Box(
-        Modifier.offset(0.dp, 495.dp).size(1080.dp, 77.dp)
+        Modifier.offset(0.dp, 495.dp).size(1080.dp, 64.dp)
             .background(Cream)
             .border(1.dp, Hairline),
     )
     Row(
-        modifier = Modifier.offset(66.dp, 497.dp).wrapContentWidth(),
+        modifier = Modifier.offset(66.dp, 496.dp).wrapContentWidth(),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         val widths = listOf(171.8f, 178.3f, 120f, 120f, 143.3f)
@@ -283,7 +284,7 @@ internal fun KioskBackground(
             val selected = label == category
             Box(
                 modifier = Modifier
-                    .size(w.dp, 72.dp)
+                    .size(w.dp, 60.dp)
                     .clickable { onCategory(label); scrollTarget = label },
                 contentAlignment = Alignment.Center,
             ) {
@@ -310,14 +311,18 @@ internal fun KioskBackground(
         }
     }
 
-    // v16 · one scrolling column of category sections. Each row is a Row of
-    // fixed 301.34px cards so short rows can be centred without stretching.
+    // v17 · one scrolling column of category sections, vertically compacted.
+    // Card = 241 x 277 (uniform 0.80 scale of the Figma 301.34 x 346 token),
+    // 1:1 image at 241, 19px gutters. Every row is centred inside the 952px
+    // column so full and short rows share the same optical axis.
     LazyColumn(
         state = gridState,
-        modifier = Modifier.offset(64.dp, 571.6.dp).size(952.dp, 1348.4.dp),
+        modifier = Modifier.offset(64.dp, 559.dp).size(952.dp, 1361.dp),
         userScrollEnabled = true,
-        verticalArrangement = Arrangement.spacedBy(44.dp),
-        contentPadding = PaddingValues(top = 20.dp, bottom = 900.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        /* Tail space must exceed the viewport height (1361dp) minus the last
+           section's remaining content, otherwise FRAPPE cannot pin to the top. */
+        contentPadding = PaddingValues(top = 8.dp, bottom = 1000.dp),
     ) {
         item(key = "all-head") {
             GridHead("ALL DRINKS", "${CATALOG.size} ITEMS")
@@ -332,17 +337,17 @@ internal fun KioskBackground(
                 val rowItems = section.products.subList(from, from + count)
                 val firstSlot = slot + from
                 item(key = "row-${section.cat}-$rowNo") {
-                    /* Complete rows start at the left edge; a short row is
-                       centred inside the 952px area. Cards keep fixed width. */
+                    /* v17 · three scaled cards no longer span the full 952px,
+                       so every row (full or short) is centred. Cards keep their
+                       fixed 241px width and are never stretched. */
                     Row(
-                        modifier = Modifier.fillMaxWidth().height(346.dp),
-                        horizontalArrangement = if (count < 3 && section.products.size > 1)
-                            Arrangement.Center else Arrangement.Start,
+                        modifier = Modifier.fillMaxWidth().height(277.dp),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.Top,
                     ) {
                         rowItems.forEachIndexed { i, product ->
-                            if (i > 0) Spacer(Modifier.width(24.dp))
-                            Box(Modifier.width(301.34.dp).height(346.dp)) {
+                            if (i > 0) Spacer(Modifier.width(19.dp))
+                            Box(Modifier.width(241.dp).height(277.dp)) {
                                 ProductCard(firstSlot + i, product, onProduct)
                             }
                         }
@@ -353,13 +358,13 @@ internal fun KioskBackground(
             slot += section.products.size
         }
         item(key = "end") {
-            Box(Modifier.fillMaxWidth().height(80.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxWidth().height(64.dp), contentAlignment = Alignment.Center) {
                 Text(
                     "END OF MENU",
                     fontFamily = InstrumentSans,
                     fontWeight = FontWeight.W600,
-                    fontSize = 18.sp,
-                    letterSpacing = 2.76.sp,
+                    fontSize = 15.sp,
+                    letterSpacing = 2.2.sp,
                     color = Muted,
                 )
             }
@@ -383,19 +388,18 @@ private data class GridSection(val cat: String, val products: List<Product>, val
 
 @Composable
 private fun GridHead(title: String, count: String, section: Boolean = false) {
-    /* spacedBy(44) + this 44px top inset = the constant 88px gap between
-       categories from the HTML artboard. The ALL DRINKS head stays flush. */
+    /* v17 · spacedBy(16) is the only gap between sections, so a 36dp head
+       here reproduces the 16px HTML category margin. ALL DRINKS is 32dp. */
     Box(
-        Modifier.fillMaxWidth().height(if (section) 96.dp else 52.dp)
-            .then(if (section) Modifier.padding(top = 44.dp) else Modifier),
+        Modifier.fillMaxWidth().height(if (section) 36.dp else 32.dp),
     ) {
         Text(
             title,
             Modifier.align(Alignment.CenterStart),
             fontFamily = InstrumentSans,
             fontWeight = FontWeight.W600,
-            fontSize = 23.sp,
-            letterSpacing = 2.76.sp,
+            fontSize = 21.sp,
+            letterSpacing = 2.4.sp,
             color = Ink,
         )
         Text(
@@ -403,7 +407,7 @@ private fun GridHead(title: String, count: String, section: Boolean = false) {
             Modifier.align(Alignment.CenterEnd),
             fontFamily = InstrumentSans,
             fontWeight = FontWeight.W600,
-            fontSize = 18.sp,
+            fontSize = 16.sp,
             letterSpacing = 1.4.sp,
             color = Muted,
         )
@@ -476,46 +480,48 @@ internal fun ProductCard(index: Int, product: Product, onProduct: (Product) -> U
         1 -> "Top Pick"
         else -> "Featured"
     }
+    /* v17 · uniform 0.80 scale of the Figma card. The image stays square
+       (241 x 241) and the glass plate sits at y=205 with height 72. */
     Box(
-        modifier = Modifier.fillMaxWidth().height(346.dp)
-            .clip(RoundedCornerShape(28.dp))
+        modifier = Modifier.fillMaxWidth().height(277.dp)
+            .clip(RoundedCornerShape(22.dp))
             .background(Cream)
-            .border(1.dp, Hairline, RoundedCornerShape(28.dp))
+            .border(1.dp, Hairline, RoundedCornerShape(22.dp))
             .clickable { onProduct(product) },
     ) {
         Image(
             painter = painterResource(product.card),
             contentDescription = product.name,
-            modifier = Modifier.fillMaxWidth().height(301.3.dp).background(WarmSand),
+            modifier = Modifier.fillMaxWidth().height(241.dp).background(WarmSand),
             contentScale = ContentScale.Crop,
         )
         Box(
-            modifier = Modifier.offset(20.dp, 20.dp)
+            modifier = Modifier.offset(16.dp, 16.dp)
                 .clip(CircleShape)
                 .background(if (index % 3 == 1) Caramel else WarmSand)
-                .padding(horizontal = 14.dp, vertical = 6.dp),
+                .padding(horizontal = 11.dp, vertical = 5.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 badge,
                 fontFamily = InstrumentSans,
                 fontWeight = FontWeight.W600,
-                fontSize = 15.sp,
+                fontSize = 12.sp,
                 color = if (index % 3 == 1) Cream else Ink,
                 maxLines = 1,
             )
         }
         Box(
-            modifier = Modifier.offset(0.dp, 256.dp).fillMaxWidth().height(90.dp)
-                .clip(RoundedCornerShape(18.dp))
+            modifier = Modifier.offset(0.dp, 205.dp).fillMaxWidth().height(72.dp)
+                .clip(RoundedCornerShape(14.dp))
                 .background(Cream.copy(alpha = 0.85f)),
         ) {
             Text(
                 product.name,
-                Modifier.align(Alignment.TopCenter).padding(top = 12.dp).fillMaxWidth(),
+                Modifier.align(Alignment.TopCenter).padding(top = 10.dp).fillMaxWidth(),
                 fontFamily = Fraunces,
-                fontSize = 24.sp,
-                lineHeight = 28.sp,
+                fontSize = 19.sp,
+                lineHeight = 23.sp,
                 color = Ink,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
@@ -523,10 +529,10 @@ internal fun ProductCard(index: Int, product: Product, onProduct: (Product) -> U
             )
             Text(
                 money(product.price),
-                Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp).fillMaxWidth(),
+                Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp).fillMaxWidth(),
                 fontFamily = Fraunces,
-                fontSize = 24.sp,
-                lineHeight = 30.sp,
+                fontSize = 19.sp,
+                lineHeight = 24.sp,
                 color = PriceRed,
                 textAlign = TextAlign.Center,
                 maxLines = 1,

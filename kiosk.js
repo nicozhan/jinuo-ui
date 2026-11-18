@@ -893,8 +893,10 @@
        4 → [2,2]      5 → [3,2]        6 → [3,3]
        7 → [3,2,2]    8 → [3,3,2]      9 → [3,3,3]
        >9 → full rows of 3, the incomplete tail centred.
-     Card tokens are untouched: 301.34 x 346, radius 28, 1:1 image, 24px gutters. */
-  var G30_TOP = 20, G30_TAIL = 800;
+     v17 · the card keeps its proportions but is uniformly scaled to 241 x 277
+     (1:1 image at 241, radius 22, 19px gutters) so three rows fit above the
+     fixed cart strip at y=1659. The artboard top (0..495) is untouched. */
+  var G30_TOP = 8, G30_TAIL = 480;
   var G30_BADGES = ['Most Popular', 'Top Pick', 'Featured'];
   var G30_SEC_TOP = {};      // category -> y offset inside #k-grid30
   var G30_LAST_TOP = 0;      // last section's offset, drives the scroll ceiling
@@ -1237,7 +1239,7 @@
   /* v16 · the ceiling must reach the last category section so clicking any
      tab can actually pin that section to the top of the product area. */
   var CART_LOCK_Y = 360,
-      MENU_MAX_Y = GRID30 ? Math.max(360, CART_LOCK_Y + G30_LAST_TOP + 120) : 360,
+      MENU_MAX_Y = GRID30 ? Math.max(360, CART_LOCK_Y + G30_LAST_TOP + 80) : 360,
       MENU_Y = 0;
   var scrollRoot = document.getElementById('k-scroll-root');
   var scrollHits = document.getElementById('k-scroll-hits');

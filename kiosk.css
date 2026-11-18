@@ -154,65 +154,72 @@
   letter-spacing:0!important;
 }
 
-/* ---------- v13 · 30-card shopping grid ---------------------------------
-   Same card tokens as the Figma artboard: 301.34 x 346, radius 28, glass
-   name/price plate at y=256, Fraunces 24, #A0002D price. */
+/* ---------- v17 · compact 9-card shopping grid -------------------------
+   The artboard top (0..495: status row, logo, language, help, banner) and the
+   floating cart strip at y=1659 are UNTOUCHED. Everything from the category
+   bar down is compressed so three full product rows fit above the cart strip.
+   The card keeps its Figma proportions but is scaled uniformly by CARD_K=0.80
+   (301.34x346 -> 241x277); the product image stays strictly 1:1 at 241x241,
+   radius 28 -> 22, glass plate y=256 -> 205, Fraunces 24 -> 19, #A0002D price.
+   Rows are centred inside the 952px column because 3 scaled cards no longer
+   span the full width. */
 #stage .f68.k-grid30-on > .f69,
 #stage .f68.k-grid30-on > .f184,
 #stage .f68.k-grid30-on > .f186,
 #stage .f68.k-grid30-on > .f246{display:none!important}
 #stage #k-grid30{
-  position:absolute;left:64px;top:20px;width:952px;
+  position:absolute;left:64px;top:8px;width:952px;
   transform-origin:0 0;will-change:transform;
 }
 #stage #k-grid30.k-g30-smooth{transition:transform .4s cubic-bezier(.22,.61,.36,1)}
 #stage .k-g30-head{
   display:flex;align-items:center;justify-content:space-between;
-  height:52px;box-sizing:border-box;border-bottom:1px solid rgba(58,42,30,.10);
-  font:600 23px/1 'Instrument Sans',Arial,sans-serif;letter-spacing:2.76px;color:#3A2A1E;
+  height:36px;box-sizing:border-box;border-bottom:1px solid rgba(58,42,30,.10);
+  font:600 21px/1 'Instrument Sans',Arial,sans-serif;letter-spacing:2.4px;color:#3A2A1E;
 }
-#stage .k-g30-head span:last-child{font-size:18px;letter-spacing:1.4px;color:#8C7157}
-/* v16 · one scrolling page with a section per category. The gap between
-   sections is constant; every section keeps the same head + row rhythm. */
-#stage .k-g30-all{margin-bottom:0}
-#stage .k-g30-sec{margin-top:88px}
-#stage .k-g30-row{display:flex;gap:24px;height:346px;margin-top:44px}
+#stage .k-g30-head span:last-child{font-size:16px;letter-spacing:1.4px;color:#8C7157}
+/* v17 · one scrolling page with a section per category, vertically compacted.
+   Category gap 16, head 36, row gap 16, row 277. All rows are centred so full
+   and short rows share the same optical axis after the card was scaled down. */
+#stage .k-g30-all{height:32px;margin-bottom:0}
+#stage .k-g30-sec{margin-top:16px}
+#stage .k-g30-row{display:flex;justify-content:center;gap:19px;height:277px;margin-top:16px}
 /* Incomplete rows are centred inside the 952px grid; cards never stretch. */
 #stage .k-g30-row.k-g30-row-center{justify-content:center}
 #stage .k-g30-card{
-  position:relative;flex:0 0 301.34px;width:301.34px;height:346px;
-  border-radius:28px;overflow:hidden;background:#FFFDF9;cursor:pointer;
-  box-shadow:0 16px 32px -24px rgba(92,67,45,.33),0 0 0 1px rgba(58,42,30,.105);
+  position:relative;flex:0 0 241px;width:241px;height:277px;
+  border-radius:22px;overflow:hidden;background:#FFFDF9;cursor:pointer;
+  box-shadow:0 13px 26px -20px rgba(92,67,45,.33),0 0 0 1px rgba(58,42,30,.105);
 }
 #stage .k-g30-img{
-  position:absolute;left:0;top:0;width:301.34px;height:301.34px;
-  border-radius:28px;background-color:#FBF8F3;
+  position:absolute;left:0;top:0;width:241px;height:241px;
+  border-radius:22px;background-color:#FBF8F3;
   background-size:cover;background-position:center;background-repeat:no-repeat;
 }
 #stage .k-g30-badge{
-  position:absolute;left:20px;top:20px;padding:6px 14px;border-radius:9999px;
+  position:absolute;left:16px;top:16px;padding:5px 11px;border-radius:9999px;
   background:#FBF8F3;box-shadow:0 0 0 1px rgba(124,102,80,.45);
-  font:600 15px/1.4 'Instrument Sans',Arial,sans-serif;letter-spacing:.38px;color:#3A2A1E;
+  font:600 12px/1.4 'Instrument Sans',Arial,sans-serif;letter-spacing:.3px;color:#3A2A1E;
 }
 #stage .k-g30-card:nth-child(2) .k-g30-badge{background:#C07A3E;color:#FFFDF9;box-shadow:none}
 #stage .k-g30-info{
-  position:absolute;left:0;top:256px;width:301.34px;height:90px;
-  box-sizing:border-box;border-radius:18px;background:rgba(255,255,255,.75);
+  position:absolute;left:0;top:205px;width:241px;height:72px;
+  box-sizing:border-box;border-radius:14px;background:rgba(255,255,255,.75);
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
-  box-shadow:0 4px 12px rgba(58,42,30,.15);
+  box-shadow:0 3px 10px rgba(58,42,30,.15);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
 #stage .k-g30-name{
-  max-width:290px;white-space:nowrap;overflow:hidden;text-overflow:clip;
-  font:400 24px/28.75px 'Fraunces',Georgia,serif;color:#3A2A1E;text-align:center;
+  max-width:232px;white-space:nowrap;overflow:hidden;text-overflow:clip;
+  font:400 19px/23px 'Fraunces',Georgia,serif;color:#3A2A1E;text-align:center;
 }
 #stage .k-g30-price{
-  font:400 24px/30px 'Fraunces',Georgia,serif;color:#A0002D;
+  font:400 19px/24px 'Fraunces',Georgia,serif;color:#A0002D;
   font-variant-numeric:tabular-nums;
 }
 #stage .k-g30-foot{
-  height:80px;display:flex;align-items:center;justify-content:center;
-  font:600 18px/1 'Instrument Sans',Arial,sans-serif;letter-spacing:2.76px;color:#8C7157;
+  height:64px;display:flex;align-items:center;justify-content:center;
+  font:600 15px/1 'Instrument Sans',Arial,sans-serif;letter-spacing:2.2px;color:#8C7157;
 }
 
 /* Brewing progress (4 stages) */
@@ -309,7 +316,7 @@
 .k-catbar{position:absolute;inset:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-x;scroll-behavior:smooth;white-space:nowrap}
 .k-catbar::-webkit-scrollbar{display:none}
 .k-catrow{display:flex;align-items:center;height:100%;gap:6px;padding:0 2px;box-sizing:border-box}
-.k-catpill{position:relative;flex:0 0 auto;height:72px;min-width:120px;display:flex;align-items:center;justify-content:center;padding:0 18px;box-sizing:border-box;cursor:pointer}
+.k-catpill{position:relative;flex:0 0 auto;height:60px;min-width:120px;display:flex;align-items:center;justify-content:center;padding:0 18px;box-sizing:border-box;cursor:pointer}
 .k-catpill .lbl{font-family:'Instrument Sans',Arial,sans-serif;font-size:23px;font-weight:600;letter-spacing:2.76px;color:#3A2A1E;opacity:.45;transition:opacity .15s ease;white-space:nowrap}
 .k-catpill .bar{position:absolute;left:16px;right:16px;bottom:0;height:4px;border-radius:9999px;background:#3A2A1E;opacity:0;transition:opacity .15s ease}
 .k-catpill.on .lbl{opacity:1}
