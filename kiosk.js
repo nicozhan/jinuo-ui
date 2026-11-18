@@ -885,13 +885,33 @@
     paintPrice();
   }
 
-  /* ---------- v13 · 30-card shopping grid -------------------------------
-     The Figma artboard only carries nine cards. For the "more products"
-     review we hide those static groups and draw 30 uniform cards (10 rows x
-     3) from listFor(), using the same card tokens: 301x346, radius 28, glass
-     name/price plate at y=256, Fraunces 24, #A0002D price. English only. */
-  var G30_PITCH = 390, G30_TOP = 20;
+  /* ---------- v16 · adaptive, category-sectioned shopping grid ------------
+     All categories live on ONE vertically scrolling page. Each section draws
+     only its real products (no filler, no empty placeholders) and splits them
+     into rows of at most 3, never leaving a single lonely card in a row:
+       1 → [1] left   2 → [2] centre   3 → [3]
+       4 → [2,2]      5 → [3,2]        6 → [3,3]
+       7 → [3,2,2]    8 → [3,3,2]      9 → [3,3,3]
+       >9 → full rows of 3, the incomplete tail centred.
+     Card tokens are untouched: 301.34 x 346, radius 28, 1:1 image, 24px gutters. */
+  var G30_TOP = 20, G30_TAIL = 800;
   var G30_BADGES = ['Most Popular', 'Top Pick', 'Featured'];
+  var G30_SEC_TOP = {};      // category -> y offset inside #k-grid30
+  var G30_LAST_TOP = 0;      // last section's offset, drives the scroll ceiling
+  var GRID_LIST = [];        // flat product list in display order
+
+  /* Row sizes for n products. A remainder of 1 is folded into 2 + 2 so no
+     row is left holding a single card; add/remove/disable a product and the
+     layout recalculates on the next build. */
+  function rowsFor(n) {
+    if (n <= 0) return [];
+    if (n <= 3) return [n];
+    var out = [], full = Math.floor(n / 3), rem = n % 3, i;
+    if (rem === 0) { for (i = 0; i < full; i++) out.push(3); }
+    else if (rem === 2) { for (i = 0; i < full; i++) out.push(3); out.push(2); }
+    else { for (i = 0; i < full - 1; i++) out.push(3); out.push(2); out.push(2); }
+    return out;
+  }
   function buildGrid30() {
     if (!GRID30) return;
     var host = document.querySelector('#stage .f68');
@@ -899,35 +919,64 @@
     host.classList.add('k-grid30-on');
     var wrap = document.createElement('div');
     wrap.id = 'k-grid30';
-    var html = '<div class="k-g30-head"><span>ALL DRINKS</span><span>' +
-      GRID_COUNT + ' ITEMS</span></div>', r, c, idx, i;
-    for (r = 0; r < GRID_COUNT / 3; r++) {
-      html += '<div class="k-g30-row">';
-      for (c = 0; c < 3; c++) {
-        idx = r * 3 + c;
-        html += '<div class="k-g30-card" data-g30="' + idx + '">' +
-          '<div class="k-g30-img" data-slot="' + idx + '"></div>' +
-          '<div class="k-g30-badge">' + G30_BADGES[idx % 3] + '</div>' +
-          '<div class="k-g30-info">' +
-            '<div class="k-g30-name" data-slot-name="' + idx + '"></div>' +
-            '<div class="k-g30-price" data-nolang="1">' + money(DEFAULT_PRICE) + '</div>' +
-          '</div></div>';
-      }
+
+    /* Preserve the original catalogue order inside each category. */
+    var sections = CATS.map(function (cat) {
+      var list = CATALOG.filter(function (p) { return p.cat === cat; });
+      return { cat: cat, list: list, rows: rowsFor(list.length) };
+    });
+    GRID_LIST = [];
+    sections.forEach(function (s) { GRID_LIST = GRID_LIST.concat(s.list); });
+
+    var html = '<div class="k-g30-head k-g30-all"><span>ALL DRINKS</span><span>' +
+      GRID_LIST.length + ' ITEMS</span></div>';
+    var slot = 0;
+    sections.forEach(function (s) {
+      html += '<div class="k-g30-sec" data-sec="' + s.cat + '">' +
+        '<div class="k-g30-head"><span>' + s.cat + '</span><span>' +
+        s.list.length + ' ITEMS</span></div>';
+      var from = 0;
+      s.rows.forEach(function (count) {
+        /* Single-product categories stay left aligned (layout table, row 1);
+           every other incomplete row is centred inside the 952px grid. */
+        var cls = (count < 3 && s.list.length > 1) ? ' k-g30-row-center' : '';
+        html += '<div class="k-g30-row' + cls + '">';
+        for (var k = 0; k < count; k++) {
+          var p = s.list[from + k];
+          html += '<div class="k-g30-card" data-g30="' + slot + '">' +
+            '<div class="k-g30-img" style="background-image:url(' + ROOT + p.card + ')"></div>' +
+            '<div class="k-g30-badge">' + G30_BADGES[slot % 3] + '</div>' +
+            '<div class="k-g30-info">' +
+              '<div class="k-g30-name">' + p.name + '</div>' +
+              '<div class="k-g30-price" data-nolang="1">' + money(DEFAULT_PRICE) + '</div>' +
+            '</div></div>';
+          slot++;
+        }
+        html += '</div>';
+        from += count;
+      });
       html += '</div>';
-    }
+    });
     html += '<div class="k-g30-foot">END OF MENU</div>';
     wrap.innerHTML = html;
     host.appendChild(wrap);
-    /* Height covers header + all rows + footer; MENU_MAX_Y is derived from it
-       so the last row can be brought above the fixed cart bar. */
-    GRID30_H = G30_TOP + 52 + (GRID_COUNT / 3) * G30_PITCH + 80;
+    /* Tail whitespace lets even the last category scroll up to the top.
+       Use measured offsets so the CSS section gap can never drift from the
+       scroll anchors. */
+    var secs = wrap.querySelectorAll('.k-g30-sec');
+    for (var j = 0; j < secs.length; j++) {
+      G30_SEC_TOP[secs[j].getAttribute('data-sec')] = secs[j].offsetTop;
+    }
+    G30_LAST_TOP = secs.length ? secs[secs.length - 1].offsetTop : 0;
+    GRID30_H = G30_TOP + wrap.offsetHeight + G30_TAIL;
     host.style.height = GRID30_H + 'px';
+    wrap.querySelectorAll('.k-g30-name').forEach(function (e) { fitText(e); });
     var cards = wrap.querySelectorAll('.k-g30-card');
-    for (i = 0; i < cards.length; i++) {
+    for (var i = 0; i < cards.length; i++) {
       (function (n) {
         cards[n].onclick = function (e) {
           e.stopPropagation(); bump();
-          var p = listFor(state.category)[n];
+          var p = GRID_LIST[n];
           if (p) act('product', p.id, e);
         };
       })(i);
@@ -1185,7 +1234,11 @@
   /* ===================== v7 · shopping UX ===================== */
   /* v13 · the 30-card grid is much taller than the original 3-row artboard,
      so the scroll ceiling follows the generated content height. */
-  var CART_LOCK_Y = 360, MENU_MAX_Y = GRID30 ? Math.max(360, GRID30_H - 1000) : 360, MENU_Y = 0;
+  /* v16 · the ceiling must reach the last category section so clicking any
+     tab can actually pin that section to the top of the product area. */
+  var CART_LOCK_Y = 360,
+      MENU_MAX_Y = GRID30 ? Math.max(360, CART_LOCK_Y + G30_LAST_TOP + 120) : 360,
+      MENU_Y = 0;
   var scrollRoot = document.getElementById('k-scroll-root');
   var scrollHits = document.getElementById('k-scroll-hits');
   var bannerEl = document.querySelector('#stage .f49');
@@ -1503,11 +1556,12 @@
       case 'help': state.returnTo = SCREEN; save(); go('03-help'); break;
       case 'helpClose': closeOverlays(); go(state.returnTo && state.returnTo !== '03-help' ? state.returnTo : '01-home'); break;
       case 'cat':
-        state.category = o; save(); applySlots(listFor(o));
-        /* v9 · keep the tab labels + active underline in sync with the data. */
+        state.category = o; save();
+        /* v16 · every category is a section on the same scrolling page, so
+           switching a tab scrolls that section to the top of the product area
+           instead of filtering the list down to 30 cycled cards. */
         buildCatTabs();
-        /* v7 · switching a tab snaps the view onto the product area. */
-        scrollMenu(CART_LOCK_Y, true);
+        scrollMenu(CART_LOCK_Y + (G30_SEC_TOP[o] || 0), true);
         toast(tr('k.toast.cat', { C: catLabel(o), N: CATALOG.filter(function (p) { return p.cat === o; }).length }));
         break;
       case 'soldout': toast(tr('k.toast.soldout')); break;

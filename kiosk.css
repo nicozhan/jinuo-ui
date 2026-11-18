@@ -172,7 +172,13 @@
   font:600 23px/1 'Instrument Sans',Arial,sans-serif;letter-spacing:2.76px;color:#3A2A1E;
 }
 #stage .k-g30-head span:last-child{font-size:18px;letter-spacing:1.4px;color:#8C7157}
+/* v16 · one scrolling page with a section per category. The gap between
+   sections is constant; every section keeps the same head + row rhythm. */
+#stage .k-g30-all{margin-bottom:0}
+#stage .k-g30-sec{margin-top:88px}
 #stage .k-g30-row{display:flex;gap:24px;height:346px;margin-top:44px}
+/* Incomplete rows are centred inside the 952px grid; cards never stretch. */
+#stage .k-g30-row.k-g30-row-center{justify-content:center}
 #stage .k-g30-card{
   position:relative;flex:0 0 301.34px;width:301.34px;height:346px;
   border-radius:28px;overflow:hidden;background:#FFFDF9;cursor:pointer;

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,15 +19,15 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +53,6 @@ import com.jinuo.kiosk.data.CATALOG
 import com.jinuo.kiosk.data.OptionGroup
 import com.jinuo.kiosk.data.Product
 import com.jinuo.kiosk.data.defaultSelections
-import com.jinuo.kiosk.data.listFor
 import com.jinuo.kiosk.data.money
 import com.jinuo.kiosk.data.schemaOf
 import com.jinuo.kiosk.data.unitPriceOf
@@ -209,6 +209,29 @@ internal fun KioskBackground(
     onHelp: () -> Unit = {},
     onBack: (() -> Unit)? = null,
 ) {
+    /* v16 · one scrolling page, one section per category. Each section renders
+       only its real products; rows of 1/2/3 cards never stretch and incomplete
+       rows are centred. Every measurement stays identical to the old 3-col grid. */
+    val grid = remember {
+        val secs = CATS.map { cat ->
+            val list = CATALOG.filter { it.category == cat }
+            GridSection(cat, list, adaptiveRows(list.size))
+        }
+        val idx = mutableMapOf<String, Int>()
+        var c = 1                       // item 0 is the ALL DRINKS head
+        secs.forEach { idx[it.cat] = c; c += 1 + it.rows.size }
+        secs to idx
+    }
+    val sections = grid.first
+    val headerIndex = grid.second
+    val gridState = rememberLazyListState()
+    var scrollTarget by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(scrollTarget) {
+        val cat = scrollTarget ?: return@LaunchedEffect
+        val i = headerIndex[cat] ?: return@LaunchedEffect
+        gridState.animateScrollToItem(i)
+    }
+
     // status row y = 0..66
     StatusText("MACHINE ID · JAV-08-221", 64f, 280f)
     StatusText("SUPPORT · +86 400 820 2006", 359f, 340f)
@@ -261,7 +284,7 @@ internal fun KioskBackground(
             Box(
                 modifier = Modifier
                     .size(w.dp, 72.dp)
-                    .clickable { onCategory(label) },
+                    .clickable { onCategory(label); scrollTarget = label },
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -287,44 +310,49 @@ internal fun KioskBackground(
         }
     }
 
-    // 30-card grid y = 571.6..1920
-    val items = listFor(category)
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
+    // v16 · one scrolling column of category sections. Each row is a Row of
+    // fixed 301.34px cards so short rows can be centred without stretching.
+    LazyColumn(
+        state = gridState,
         modifier = Modifier.offset(64.dp, 571.6.dp).size(952.dp, 1348.4.dp),
         userScrollEnabled = true,
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
         verticalArrangement = Arrangement.spacedBy(44.dp),
-        contentPadding = PaddingValues(top = 20.dp),
+        contentPadding = PaddingValues(top = 20.dp, bottom = 900.dp),
     ) {
-        item(span = { GridItemSpan(3) }) {
-            Box(Modifier.fillMaxWidth().height(52.dp)) {
-                Text(
-                    "ALL DRINKS",
-                    Modifier.align(Alignment.CenterStart),
-                    fontFamily = InstrumentSans,
-                    fontWeight = FontWeight.W600,
-                    fontSize = 23.sp,
-                    letterSpacing = 2.76.sp,
-                    color = Ink,
-                )
-                Text(
-                    "30 ITEMS",
-                    Modifier.align(Alignment.CenterEnd),
-                    fontFamily = InstrumentSans,
-                    fontWeight = FontWeight.W600,
-                    fontSize = 18.sp,
-                    letterSpacing = 1.4.sp,
-                    color = Muted,
-                )
-                Box(
-                    Modifier.align(Alignment.BottomStart).fillMaxWidth().height(1.dp)
-                        .background(Hairline),
-                )
-            }
+        item(key = "all-head") {
+            GridHead("ALL DRINKS", "${CATALOG.size} ITEMS")
         }
-        items(30) { index -> ProductCard(index, items[index], onProduct) }
-        item(span = { GridItemSpan(3) }) {
+        var slot = 0
+        sections.forEach { section ->
+            item(key = "head-${section.cat}") {
+                GridHead(section.cat, "${section.products.size} ITEMS", section = true)
+            }
+            var from = 0
+            section.rows.forEachIndexed { rowNo, count ->
+                val rowItems = section.products.subList(from, from + count)
+                val firstSlot = slot + from
+                item(key = "row-${section.cat}-$rowNo") {
+                    /* Complete rows start at the left edge; a short row is
+                       centred inside the 952px area. Cards keep fixed width. */
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(346.dp),
+                        horizontalArrangement = if (count < 3 && section.products.size > 1)
+                            Arrangement.Center else Arrangement.Start,
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        rowItems.forEachIndexed { i, product ->
+                            if (i > 0) Spacer(Modifier.width(24.dp))
+                            Box(Modifier.width(301.34.dp).height(346.dp)) {
+                                ProductCard(firstSlot + i, product, onProduct)
+                            }
+                        }
+                    }
+                }
+                from += count
+            }
+            slot += section.products.size
+        }
+        item(key = "end") {
             Box(Modifier.fillMaxWidth().height(80.dp), contentAlignment = Alignment.Center) {
                 Text(
                     "END OF MENU",
@@ -336,6 +364,53 @@ internal fun KioskBackground(
                 )
             }
         }
+    }
+}
+
+/** Row sizes for n products; a remainder of 1 becomes 2 + 2 so no lonely card. */
+private fun adaptiveRows(n: Int): List<Int> {
+    if (n <= 0) return emptyList()
+    if (n <= 3) return listOf(n)
+    val full = n / 3
+    return when (n % 3) {
+        0 -> List(full) { 3 }
+        2 -> List(full) { 3 } + 2
+        else -> List(full - 1) { 3 } + listOf(2, 2)
+    }
+}
+
+private data class GridSection(val cat: String, val products: List<Product>, val rows: List<Int>)
+
+@Composable
+private fun GridHead(title: String, count: String, section: Boolean = false) {
+    /* spacedBy(44) + this 44px top inset = the constant 88px gap between
+       categories from the HTML artboard. The ALL DRINKS head stays flush. */
+    Box(
+        Modifier.fillMaxWidth().height(if (section) 96.dp else 52.dp)
+            .then(if (section) Modifier.padding(top = 44.dp) else Modifier),
+    ) {
+        Text(
+            title,
+            Modifier.align(Alignment.CenterStart),
+            fontFamily = InstrumentSans,
+            fontWeight = FontWeight.W600,
+            fontSize = 23.sp,
+            letterSpacing = 2.76.sp,
+            color = Ink,
+        )
+        Text(
+            count,
+            Modifier.align(Alignment.CenterEnd),
+            fontFamily = InstrumentSans,
+            fontWeight = FontWeight.W600,
+            fontSize = 18.sp,
+            letterSpacing = 1.4.sp,
+            color = Muted,
+        )
+        Box(
+            Modifier.align(Alignment.BottomStart).fillMaxWidth().height(1.dp)
+                .background(Hairline),
+        )
     }
 }
 
