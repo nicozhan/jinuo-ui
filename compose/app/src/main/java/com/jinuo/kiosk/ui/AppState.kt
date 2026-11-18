@@ -18,7 +18,9 @@ data class CartItem(
         get() {
             val groups = com.jinuo.kiosk.data.schemaOf(product)
             return groups.mapIndexed { i, g ->
-                g.options.getOrElse(selections.getOrElse(i) { 1 }) { g.options[1] }
+                g.options.getOrElse(selections.getOrElse(i) { 1 }) {
+                    g.options.getOrElse(1) { g.options.first() }
+                }
             }.joinToString(" · ")
         }
 }

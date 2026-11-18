@@ -20,6 +20,12 @@ private val SHOTS = OptionGroup("k.grp.shot", "Shots", listOf("1 Shot", "2 Shots
 private val MILK = OptionGroup("k.grp.milk", "Milk", listOf("Whole", "Oat", "Almond"))
 private val SUGAR = OptionGroup("k.grp.sugar", "Sweetness", listOf("Less sugar", "Regular sugar", "Extra sugar"))
 private val SUGAR_4 = OptionGroup("k.grp.sugar", "Sweetness", listOf("No Sugar", "Light", "Less Sugar", "Regular"))
+/* v18 · Americano has its own two-row schema: a single Strength option and a
+   4-step sweetness scale spelled exactly as requested. */
+private val AMERICANO_STRENGTH = OptionGroup("k.grp.strength", "Strength", listOf("Standard"))
+private val AMERICANO_SWEETNESS = OptionGroup(
+    "k.grp.sugar", "Sweetness", listOf("No sugar", "Less", "Regular", "Extra"),
+)
 private val TEMP = OptionGroup("k.grp.temp", "Temperature", listOf("Iced", "No ice", "Hot"))
 private val TOPPING = OptionGroup("k.grp.topping", "Topping", listOf("None", "Pearl", "Jelly"))
 private val CREAM = OptionGroup("k.grp.cream", "Cream", listOf("No Cream", "Light", "Extra"))
@@ -41,12 +47,17 @@ private val SURCHARGES: Map<String, List<Double>> = mapOf(
 )
 
 fun schemaOf(product: Product): List<OptionGroup> {
+    if (product.id == "americano") return listOf(AMERICANO_STRENGTH, AMERICANO_SWEETNESS)
     val base = SCHEMAS[product.kind] ?: SCHEMAS.getValue("classic")
     if (product.id != "caramel-macchiato") return base
     return base.toMutableList().also { it[1] = SUGAR_4 }
 }
 
-fun defaultSelections(product: Product): List<Int> = schemaOf(product).map { 1 }
+/** Default chip = index 1, but never past the last option (single-option
+   groups such as Americano Strength fall back to index 0). */
+fun defaultSelections(product: Product): List<Int> = schemaOf(product).map { group ->
+    1.coerceAtMost(group.options.lastIndex)
+}
 
 /** One total only: catalog price + surcharges of the selected options. */
 fun unitPriceOf(product: Product, selections: List<Int>): Double {

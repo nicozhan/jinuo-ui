@@ -24,15 +24,15 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 
 /**
- * Contactless card-tap animation, ported 1:1 from the reference SVG/CSS
- * (刷卡动画.html) into a native Compose Canvas — no WebView, no static image.
+ * Contactless card-tap animation, native Compose Canvas (no WebView / GIF).
  *
- * The source uses a 680×680 viewBox:
- *   - ellipse  cx=340 cy=340 rx=230 ry=134  (the reader induction zone)
- *   - halo     same ellipse, thick stroke fading in/out
- *   - w1/w2/w3 three "wave" arcs scaling out from the ellipse centre
- *   - card     a tilted card + hand group sliding in from x=+76 to x=0
- * The whole loop is 2.8s and repeats forever, exactly like the HTML version.
+ * 680x680 viewBox:
+ *   - static induction ellipse cx=340 cy=340 rx=230 ry=134
+ *   - halo ellipse fading in/out on tap
+ *   - THREE SIGNAL ARCS that travel strictly LEFT (horizontal translation,
+ *     no diagonal drift) with staggered fade in/out
+ *   - card slides in from the right, taps, slides back
+ * 2.8s infinite loop.
  */
 @Composable
 fun TapCardAnimation(modifier: Modifier = Modifier) {
@@ -50,7 +50,6 @@ fun TapCardAnimation(modifier: Modifier = Modifier) {
         val s = size.minDimension / 680f
         val ink = Color(0xFF141414)
 
-        // The SVG viewBox is 680×680; scale everything into the canvas box.
         scale(s) {
             // static induction ellipse
             drawOval(
@@ -58,7 +57,7 @@ fun TapCardAnimation(modifier: Modifier = Modifier) {
                 color = ink, style = Stroke(width = 10f),
             )
 
-            // halo: 0→32% invisible, 44% alpha .3, 64%→ invisible
+            // halo on tap
             val haloA = haloAlpha(progress)
             if (haloA > 0f) {
                 drawOval(
@@ -67,15 +66,14 @@ fun TapCardAnimation(modifier: Modifier = Modifier) {
                 )
             }
 
-            // three waves, each with its own delayed start / peak / fade
-            drawWave(WAVE_1, 366.5f, 340f, waveState(progress, .31f, .40f, .55f), ink)
-            drawWave(WAVE_2, 340.5f, 340f, waveState(progress, .37f, .46f, .61f), ink)
-            drawWave(WAVE_3, 314.5f, 340f, waveState(progress, .43f, .52f, .67f), ink)
+            // three signals: each slides LEFT along the X axis only.
+            drawSignal(WAVE_1, signalState(progress, .31f, .40f, .55f), ink)
+            drawSignal(WAVE_2, signalState(progress, .37f, .46f, .61f), ink)
+            drawSignal(WAVE_3, signalState(progress, .43f, .52f, .67f), ink)
 
-            // card group: 0–10% parked right, 32–60% tapped in, 86–100% away
+            // card group: 0-10% parked right, 32-60% tapped in, 86-100% away
             translate(cardOffset(progress), 0f) {
                 translate(30f, 160f) {
-                    // rotated plastic card (rotate -20° around 450,140)
                     rotate(-20f, Offset(450f, 140f)) {
                         drawRoundRect(
                             topLeft = Offset(395f, 104f), size = Size(108f, 72f),
@@ -91,7 +89,6 @@ fun TapCardAnimation(modifier: Modifier = Modifier) {
                             strokeWidth = 8f, cap = StrokeCap.Round,
                         )
                     }
-                    // hand / tap gesture strokes
                     drawPath(HAND, ink, style = Stroke(11f, cap = StrokeCap.Round, join = StrokeJoin.Round))
                     drawPath(CUFF_1, ink, style = Stroke(11f, cap = StrokeCap.Round))
                     drawPath(CUFF_2, ink, style = Stroke(11f, cap = StrokeCap.Round))
@@ -101,18 +98,22 @@ fun TapCardAnimation(modifier: Modifier = Modifier) {
     }
 }
 
-/** returns [alpha, scale] for one wave at the current loop progress */
-private fun waveState(p: Float, hold: Float, peak: Float, fade: Float): Pair<Float, Float> = when {
-    p <= hold -> 0f to .7f
+/**
+ * [alpha, leftward dx] for one signal. dx is a pure X translation in viewBox
+ * px: +34 (start, near the card) -> -92 (end, left of centre). Y is untouched,
+ * so the arc never drifts up-left.
+ */
+private fun signalState(p: Float, hold: Float, peak: Float, fade: Float): Pair<Float, Float> = when {
+    p <= hold -> 0f to 34f
     p < peak -> {
         val t = ease((p - hold) / (peak - hold))
-        t to (.7f + .3f * t)
+        t to (34f - 126f * t)
     }
     p < fade -> {
         val t = ease((p - peak) / (fade - peak))
-        (1f - t) to (1f + .25f * t)
+        (1f - t) to (-92f - 34f * t)
     }
-    else -> 0f to 1.25f
+    else -> 0f to -126f
 }
 
 private fun haloAlpha(p: Float): Float = when {
@@ -129,32 +130,31 @@ private fun cardOffset(p: Float): Float = when {
     else -> 76f
 }
 
-/** smoothstep — close to the CSS cubic-bezier(.45,0,.25,1) used for the card */
 private fun ease(t: Float): Float {
     val x = t.coerceIn(0f, 1f)
     return x * x * (3f - 2f * x)
 }
 
-private fun DrawScope.drawWave(path: Path, cx: Float, cy: Float, state: Pair<Float, Float>, ink: Color) {
-    val (alpha, sc) = state
+/** Draw one arc shifted only along X — no scale, no Y drift. */
+private fun DrawScope.drawSignal(path: Path, state: Pair<Float, Float>, ink: Color) {
+    val (alpha, dx) = state
     if (alpha <= 0.001f) return
-    translate(cx, cy) {
-        scale(sc) {
-            translate(-cx, -cy) {
-                drawPath(path, ink.copy(alpha = alpha), style = Stroke(10f, cap = StrokeCap.Round))
-            }
-        }
+    translate(dx, 0f) {
+        drawPath(path, ink.copy(alpha = alpha), style = Stroke(10f, cap = StrokeCap.Round))
     }
 }
 
+/* Three arcs bulging LEFT ("("), symmetric about y=340. The card taps from
+   the right, so a left-facing arc sliding along -X reads as a signal travelling
+   leftward into the reader. No Y component anywhere in the animation. */
 private val WAVE_1 = Path().apply {
-    moveTo(362f, 328f); quadraticBezierTo(380f, 340f, 362f, 352f)
+    moveTo(372f, 314f); quadraticBezierTo(352f, 340f, 372f, 366f)
 }
 private val WAVE_2 = Path().apply {
-    moveTo(334f, 316f); quadraticBezierTo(360f, 340f, 334f, 364f)
+    moveTo(344f, 320f); quadraticBezierTo(326f, 340f, 344f, 360f)
 }
 private val WAVE_3 = Path().apply {
-    moveTo(306f, 304f); quadraticBezierTo(340f, 340f, 306f, 376f)
+    moveTo(318f, 324f); quadraticBezierTo(302f, 340f, 318f, 356f)
 }
 private val HAND = Path().apply {
     moveTo(421f, 181f)

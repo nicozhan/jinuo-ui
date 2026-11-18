@@ -5,7 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -48,7 +49,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jinuo.kiosk.R
-import com.jinuo.kiosk.data.CATS
 import com.jinuo.kiosk.data.CATALOG
 import com.jinuo.kiosk.data.OptionGroup
 import com.jinuo.kiosk.data.Product
@@ -78,6 +78,36 @@ import com.jinuo.kiosk.ui.theme.WarmSand
    --------------------------------------------------------------------------- */
 val ART_W = 1080.dp
 val ART_H = 1920.dp
+
+/* v18 · display-only category layer. The generated Catalog.kt keeps the raw
+   categories (CLASSICS/ESPRESSO/MILK/TEA/FRAPPE); the kiosk UI relabels and
+   regroups them into these 5 tabs so a catalog re-sync cannot wipe the change.
+   "All" is a virtual tab that just pins the ALL DRINKS head at the very top. */
+internal const val UI_ALL = "All"
+internal val UI_CATS = listOf(
+    UI_ALL,
+    "Classic Coffee",
+    "Milk Coffee",
+    "Fruit Tea",
+    "Light Milk Tea",
+)
+
+/** Which raw categories feed each display tab. */
+private val UI_SOURCES: Map<String, List<String>> = mapOf(
+    "Classic Coffee" to listOf("CLASSICS", "ESPRESSO"),
+    "Milk Coffee" to listOf("MILK"),
+    "Fruit Tea" to listOf("TEA"),
+    "Light Milk Tea" to listOf("FRAPPE"),
+)
+
+/** Products for a display tab, in catalog order (All = the full 22). */
+internal fun productsForUiCat(tab: String): List<Product> = when (tab) {
+    UI_ALL -> CATALOG
+    else -> {
+        val raw = UI_SOURCES[tab].orEmpty()
+        CATALOG.filter { it.category in raw }
+    }
+}
 
 @Composable
 internal fun Artboard(
@@ -136,7 +166,7 @@ fun CustomScreen(
     onBack: (() -> Unit)? = null,
 ) {
     var productId by remember { mutableStateOf(initialProductId) }
-    var category by remember { mutableStateOf("CLASSICS") }
+    var category by remember { mutableStateOf(UI_ALL) }
     var showModal by remember { mutableStateOf(startWithModal) }
     var selections by remember {
         mutableStateOf(defaultSelections(CATALOG.first { it.id == initialProductId }))
@@ -214,12 +244,14 @@ internal fun KioskBackground(
        is centred. The 0..495 artboard top and the cart strip at y=1659 are
        untouched; everything below the category bar is vertically compacted. */
     val grid = remember {
-        val secs = CATS.map { cat ->
-            val list = CATALOG.filter { it.category == cat }
-            GridSection(cat, list, adaptiveRows(list.size))
+        // item 0 is the ALL DRINKS head; the "All" tab pins it.
+        // Four real display tabs below it, each with its relabelled products.
+        val secs = UI_CATS.filter { it != UI_ALL }.map { tab ->
+            val list = productsForUiCat(tab)
+            GridSection(tab, list, adaptiveRows(list.size))
         }
-        val idx = mutableMapOf<String, Int>()
-        var c = 1                       // item 0 is the ALL DRINKS head
+        val idx = mutableMapOf<String, Int>(UI_ALL to 0)
+        var c = 1
         secs.forEach { idx[it.cat] = c; c += 1 + it.rows.size }
         secs to idx
     }
@@ -274,14 +306,18 @@ internal fun KioskBackground(
             .background(Cream)
             .border(1.dp, Hairline),
     )
+    // v18 · category tabs: text auto-fits (no truncation) and the strip scrolls
+    // horizontally so longer labels stay fully readable.
+    val catScroll = rememberScrollState()
     Row(
-        modifier = Modifier.offset(66.dp, 496.dp).wrapContentWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.offset(40.dp, 496.dp).size(1000.dp, 60.dp)
+            .horizontalScroll(catScroll),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        val widths = listOf(171.8f, 178.3f, 120f, 120f, 143.3f)
-        CATS.forEachIndexed { index, label ->
-            val w = widths[index]
+        UI_CATS.forEach { label ->
             val selected = label == category
+            val w = catTabWidth(label)
             Box(
                 modifier = Modifier
                     .size(w.dp, 60.dp)
@@ -292,15 +328,16 @@ internal fun KioskBackground(
                     text = label,
                     fontFamily = InstrumentSans,
                     fontWeight = FontWeight.W600,
-                    fontSize = 23.sp,
-                    letterSpacing = 2.76.sp,
+                    fontSize = 20.sp,
+                    letterSpacing = 0.6.sp,
                     color = Ink.copy(alpha = if (selected) 1f else 0.45f),
                     maxLines = 1,
+                    softWrap = false,
                 )
                 if (selected) {
                     Box(
                         Modifier.align(Alignment.BottomCenter)
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 12.dp)
                             .fillMaxWidth()
                             .height(4.dp)
                             .clip(CircleShape)
@@ -371,6 +408,20 @@ internal fun KioskBackground(
         }
     }
 }
+
+/** v18 · card promo labels, cycled by slot. The long price badge is kept
+    on one line at 11sp so it never clips inside the 241px card. */
+internal val CARD_BADGES = listOf(
+    "2nd Cup 1.00 CHF",
+    "Promotion",
+    "Bestseller",
+    "Seasonal",
+)
+
+/** Tab width follows the glyph count at 20sp Instrument Sans + padding, so
+    every display label is shown in full and the strip can scroll when needed. */
+private fun catTabWidth(label: String): Float =
+    (label.length * 12.4f + 40f).coerceAtLeast(92f)
 
 /** Row sizes for n products; a remainder of 1 becomes 2 + 2 so no lonely card. */
 private fun adaptiveRows(n: Int): List<Int> {
@@ -475,11 +526,9 @@ internal fun TopPill(
 
 @Composable
 internal fun ProductCard(index: Int, product: Product, onProduct: (Product) -> Unit) {
-    val badge = when (index % 3) {
-        0 -> "Most Popular"
-        1 -> "Top Pick"
-        else -> "Featured"
-    }
+    // v18 · four promo labels cycling across the catalogue.
+    val badge = CARD_BADGES[index % CARD_BADGES.size]
+    val badgeHot = badge == "Promotion" || badge == "2nd Cup 1.00 CHF"
     /* v17 · uniform 0.80 scale of the Figma card. The image stays square
        (241 x 241) and the glass plate sits at y=205 with height 72. */
     Box(
@@ -496,19 +545,20 @@ internal fun ProductCard(index: Int, product: Product, onProduct: (Product) -> U
             contentScale = ContentScale.Crop,
         )
         Box(
-            modifier = Modifier.offset(16.dp, 16.dp)
+            modifier = Modifier.offset(12.dp, 16.dp)
                 .clip(CircleShape)
-                .background(if (index % 3 == 1) Caramel else WarmSand)
-                .padding(horizontal = 11.dp, vertical = 5.dp),
+                .background(if (badgeHot) Caramel else WarmSand)
+                .padding(horizontal = 12.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 badge,
                 fontFamily = InstrumentSans,
                 fontWeight = FontWeight.W600,
-                fontSize = 12.sp,
-                color = if (index % 3 == 1) Cream else Ink,
+                fontSize = 11.sp,
+                color = if (badgeHot) Cream else Ink,
                 maxLines = 1,
+                softWrap = false,
             )
         }
         Box(
