@@ -163,7 +163,6 @@ fun CustomScreen(
     onCartClick: () -> Unit = {},
     onLang: () -> Unit = {},
     onHelp: () -> Unit = {},
-    onBack: (() -> Unit)? = null,
 ) {
     var productId by remember { mutableStateOf(initialProductId) }
     var category by remember { mutableStateOf(UI_ALL) }
@@ -191,7 +190,6 @@ fun CustomScreen(
             langFlag = langFlag,
             onLang = onLang,
             onHelp = onHelp,
-            onBack = onBack,
         )
 
         if (showModal) {
@@ -237,7 +235,6 @@ internal fun KioskBackground(
     langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     onLang: () -> Unit = {},
     onHelp: () -> Unit = {},
-    onBack: (() -> Unit)? = null,
 ) {
     /* v17 · one scrolling page, one section per category. Each section renders
        only its real products; rows of 1/2/3 cards never stretch and every row
@@ -278,17 +275,6 @@ internal fun KioskBackground(
         modifier = Modifier.offset(64.dp, 73.dp).size(136.dp, 64.dp),
         contentScale = ContentScale.FillBounds,
     )
-    if (onBack != null) {
-        Box(
-            modifier = Modifier.offset(232.dp, 75.dp).size(56.dp, 56.dp)
-                .clip(CircleShape).background(WarmSand)
-                .border(1.dp, Hairline, CircleShape)
-                .clickable { onBack() },
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("←", fontFamily = InstrumentSans, fontSize = 26.sp, color = Ink)
-        }
-    }
     TopPill(x = 485f, text = langLabel, flag = langFlag, onClick = onLang)
     TopPill(x = 755f, text = "Help", withFlag = false, onClick = onHelp)
 

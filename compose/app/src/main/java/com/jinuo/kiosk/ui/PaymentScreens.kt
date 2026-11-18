@@ -81,10 +81,10 @@ fun OrderConfirmScreen(
             Text("${items.sumOf { it.qty }} items", modifier = Modifier.offset(770.dp, 34.dp).size(150.dp, 26.dp),
                 fontFamily = InstrumentSans, fontSize = 14.sp, color = Muted)
 
-            // v15.5 · order list is exactly 3 product rows (HTML f45: 886.78x337.25,
-            // three 112.62px rows). Each row carries a hairline like the Figma art.
+            // v19 · draw only the rows that actually exist. A one-item order
+            // gets one row, never three boxes with two empty slots.
             val shown = items.take(3)
-            for (i in 0 until 3) {
+            for (i in shown.indices) {
                 Box(
                     modifier = Modifier.offset(33.dp, (78 + i * 112.62f).dp)
                         .size(886.dp, 112.dp)
@@ -244,16 +244,6 @@ fun CardPayScreen(
         TapCardAnimation(
             modifier = Modifier.offset(220.dp, 280.dp).size(640.dp),
         )
-
-        Text("→  GO TO THE POS TERMINAL",
-            modifier = Modifier.offset(210.dp, 856.dp).size(660.dp, 56.dp),
-            fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 30.sp,
-            color = PAY_RED,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-        Text("Tap your card, then follow the screen on the terminal",
-            modifier = Modifier.offset(160.dp, 920.dp).size(760.dp, 40.dp),
-            fontFamily = InstrumentSans, fontSize = 19.sp, color = Muted,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
 
         // amount card 260,1018 560x160
         Box(Modifier.offset(260.dp, 1018.dp).size(560.dp, 160.dp)

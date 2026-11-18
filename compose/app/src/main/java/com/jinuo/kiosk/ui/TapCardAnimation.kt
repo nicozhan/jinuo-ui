@@ -29,8 +29,8 @@ import androidx.compose.ui.graphics.drawscope.translate
  * 680x680 viewBox:
  *   - static induction ellipse cx=340 cy=340 rx=230 ry=134
  *   - halo ellipse fading in/out on tap
- *   - THREE SIGNAL ARCS that travel strictly LEFT (horizontal translation,
- *     no diagonal drift) with staggered fade in/out
+ *   - THREE SIGNAL BARS: separate vertical strokes travelling strictly LEFT
+ *     (horizontal translation only, no diagonal drift, never overlapping)
  *   - card slides in from the right, taps, slides back
  * 2.8s infinite loop.
  */
@@ -66,10 +66,12 @@ fun TapCardAnimation(modifier: Modifier = Modifier) {
                 )
             }
 
-            // three signals: each slides LEFT along the X axis only.
-            drawSignal(WAVE_1, signalState(progress, .31f, .40f, .55f), ink)
-            drawSignal(WAVE_2, signalState(progress, .37f, .46f, .61f), ink)
-            drawSignal(WAVE_3, signalState(progress, .43f, .52f, .67f), ink)
+            // three signals: identical leftward motion keeps the 38px pitch
+            // constant; only the fade is staggered, so the bars never cross.
+            val dx = barDx(progress)
+            drawSignal(BAR_1, barAlpha(progress, 0) to dx, ink)
+            drawSignal(BAR_2, barAlpha(progress, 1) to dx, ink)
+            drawSignal(BAR_3, barAlpha(progress, 2) to dx, ink)
 
             // card group: 0-10% parked right, 32-60% tapped in, 86-100% away
             translate(cardOffset(progress), 0f) {
@@ -99,21 +101,26 @@ fun TapCardAnimation(modifier: Modifier = Modifier) {
 }
 
 /**
- * [alpha, leftward dx] for one signal. dx is a pure X translation in viewBox
- * px: +34 (start, near the card) -> -92 (end, left of centre). Y is untouched,
- * so the arc never drifts up-left.
+ * All three bars share ONE leftward X translation (+34 -> -126 in viewBox px),
+ * so their 38px pitch is invariant and they can never overlap. Y is untouched.
  */
-private fun signalState(p: Float, hold: Float, peak: Float, fade: Float): Pair<Float, Float> = when {
-    p <= hold -> 0f to 34f
-    p < peak -> {
-        val t = ease((p - hold) / (peak - hold))
-        t to (34f - 126f * t)
+private fun barDx(p: Float): Float = when {
+    p <= .31f -> 34f
+    p < .40f -> 34f - 126f * ease((p - .31f) / .09f)
+    p < .55f -> -92f - 34f * ease((p - .40f) / .15f)
+    else -> -126f
+}
+
+/** Only the opacity is staggered, giving a left-travelling ripple across |||. */
+private fun barAlpha(p: Float, index: Int): Float {
+    val hold = .30f + index * .035f
+    val peak = .40f + index * .035f
+    val fade = .55f + index * .035f
+    return when {
+        p <= hold || p >= fade -> 0f
+        p < peak -> ease((p - hold) / (peak - hold))
+        else -> 1f - ease((p - peak) / (fade - peak))
     }
-    p < fade -> {
-        val t = ease((p - peak) / (fade - peak))
-        (1f - t) to (-92f - 34f * t)
-    }
-    else -> 0f to -126f
 }
 
 private fun haloAlpha(p: Float): Float = when {
@@ -135,26 +142,26 @@ private fun ease(t: Float): Float {
     return x * x * (3f - 2f * x)
 }
 
-/** Draw one arc shifted only along X — no scale, no Y drift. */
+/** Draw one vertical bar shifted only along X — no scale, no Y drift. */
 private fun DrawScope.drawSignal(path: Path, state: Pair<Float, Float>, ink: Color) {
     val (alpha, dx) = state
     if (alpha <= 0.001f) return
     translate(dx, 0f) {
-        drawPath(path, ink.copy(alpha = alpha), style = Stroke(10f, cap = StrokeCap.Round))
+        drawPath(path, ink.copy(alpha = alpha), style = Stroke(12f, cap = StrokeCap.Round))
     }
 }
 
-/* Three arcs bulging LEFT ("("), symmetric about y=340. The card taps from
-   the right, so a left-facing arc sliding along -X reads as a signal travelling
-   leftward into the reader. No Y component anywhere in the animation. */
-private val WAVE_1 = Path().apply {
-    moveTo(372f, 314f); quadraticBezierTo(352f, 340f, 372f, 366f)
+/* Three separate vertical bars ("|||"), 38px apart in viewBox space. The card
+   taps from the right, so the bars slide along -X into the reader. The 38px
+   pitch is wider than the 12px stroke, so they can never overlap. */
+private val BAR_1 = Path().apply {
+    moveTo(372f, 316f); lineTo(372f, 364f)
 }
-private val WAVE_2 = Path().apply {
-    moveTo(344f, 320f); quadraticBezierTo(326f, 340f, 344f, 360f)
+private val BAR_2 = Path().apply {
+    moveTo(334f, 310f); lineTo(334f, 370f)
 }
-private val WAVE_3 = Path().apply {
-    moveTo(318f, 324f); quadraticBezierTo(302f, 340f, 318f, 356f)
+private val BAR_3 = Path().apply {
+    moveTo(296f, 316f); lineTo(296f, 364f)
 }
 private val HAND = Path().apply {
     moveTo(421f, 181f)

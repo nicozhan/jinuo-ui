@@ -150,7 +150,6 @@ fun KioskApp(
                 onCartClick = { openCart() },
                 onLang = { openLang(480f, 155f) },
                 onHelp = { helpOpen = true },
-                onBack = { askHomeConfirm() },
             )
 
             is Screen.Custom -> CustomScreen(
@@ -163,7 +162,6 @@ fun KioskApp(
                 onCartClick = { openCart() },
                 onLang = { openLang(765f, 155f) },
                 onHelp = { helpOpen = true },
-                onBack = { askHomeConfirm() },
             )
 
             is Screen.OrderConfirm -> OrderConfirmScreen(
