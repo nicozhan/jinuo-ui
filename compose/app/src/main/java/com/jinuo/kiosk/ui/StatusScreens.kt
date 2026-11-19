@@ -467,16 +467,20 @@ fun PickupScreen(
         Image(painterResource(R.drawable.kiosk_logo), "Jinuo Coffee",
             Modifier.offset(433.dp, 98.dp).size(213.dp, 80.dp), contentScale = ContentScale.Fit)
 
-        Text("DRINK $cup READY",
-            modifier = Modifier.offset(64.dp, 226.dp).size(952.dp, 60.dp),
+        // Title matches the Making page ("Preparing drink N of M…"): same
+        // Fraunces 40sp / 0.4sp tracking / offset, so the two pages read alike.
+        Text("YOUR DRINK IS READY!",
+            modifier = Modifier.offset(64.dp, 226.dp).size(952.dp, 52.dp),
             fontFamily = Fraunces, fontWeight = FontWeight.W600,
-            fontSize = 48.sp, letterSpacing = 0.5.sp, color = Ink)
+            fontSize = 40.sp, letterSpacing = 0.4.sp, color = Ink)
         Text("Please collect your drink",
-            modifier = Modifier.offset(64.dp, 292.dp).size(952.dp, 50.dp),
+            modifier = Modifier.offset(64.dp, 282.dp).size(952.dp, 50.dp),
             fontFamily = InstrumentSans, fontSize = 40.sp,
             color = Muted.copy(alpha = 0.8f))
 
-        // large check-in-circle success mark
+        // Final drink → check mark; earlier drinks → "continue" arrow.
+        // Both marks share the same Caramel circle for a consistent look.
+        val isFinalDrink = cup >= total
         androidx.compose.foundation.Canvas(
             modifier = Modifier.offset(390.dp, 560.dp).size(300.dp, 300.dp)
         ) {
@@ -484,15 +488,31 @@ fun PickupScreen(
             drawCircle(color = Caramel.copy(alpha = 0.14f), radius = r)
             drawCircle(color = Caramel, radius = r - 4f,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 12f))
-            // check mark = two joined lines (avoids version-specific Path API)
-            drawLine(Caramel,
-                start = androidx.compose.ui.geometry.Offset(size.width * 0.30f, size.height * 0.52f),
-                end = androidx.compose.ui.geometry.Offset(size.width * 0.45f, size.height * 0.66f),
-                strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
-            drawLine(Caramel,
-                start = androidx.compose.ui.geometry.Offset(size.width * 0.45f, size.height * 0.66f),
-                end = androidx.compose.ui.geometry.Offset(size.width * 0.71f, size.height * 0.37f),
-                strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            if (isFinalDrink) {
+                // check mark = two joined lines (avoids version-specific Path API)
+                drawLine(Caramel,
+                    start = androidx.compose.ui.geometry.Offset(size.width * 0.30f, size.height * 0.52f),
+                    end = androidx.compose.ui.geometry.Offset(size.width * 0.45f, size.height * 0.66f),
+                    strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                drawLine(Caramel,
+                    start = androidx.compose.ui.geometry.Offset(size.width * 0.45f, size.height * 0.66f),
+                    end = androidx.compose.ui.geometry.Offset(size.width * 0.71f, size.height * 0.37f),
+                    strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            } else {
+                // continue arrow → : shaft + two head strokes
+                drawLine(Caramel,
+                    start = androidx.compose.ui.geometry.Offset(size.width * 0.29f, size.height * 0.50f),
+                    end = androidx.compose.ui.geometry.Offset(size.width * 0.71f, size.height * 0.50f),
+                    strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                drawLine(Caramel,
+                    start = androidx.compose.ui.geometry.Offset(size.width * 0.52f, size.height * 0.32f),
+                    end = androidx.compose.ui.geometry.Offset(size.width * 0.71f, size.height * 0.50f),
+                    strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                drawLine(Caramel,
+                    start = androidx.compose.ui.geometry.Offset(size.width * 0.52f, size.height * 0.68f),
+                    end = androidx.compose.ui.geometry.Offset(size.width * 0.71f, size.height * 0.50f),
+                    strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            }
         }
 
         Text("Drink $cup of $total is ready",
