@@ -528,7 +528,7 @@ fun PickupScreen(
             .clip(RoundedCornerShape(24.dp)).background(Ink),
             contentAlignment = Alignment.Center) {
             Text(
-                if (cup < total) "Tap to confirm pickup · Next drink will start"
+                if (cup < total) "Remove your drink · Next drink starts right away"
                 else "Tap to confirm pickup · Final drink",
                 fontFamily = InstrumentSans, fontWeight = FontWeight.W600,
                 fontSize = 28.sp, color = Cream,
