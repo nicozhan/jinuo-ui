@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jinuo.kiosk.data.KioskConfig
 import com.jinuo.kiosk.data.money
 import com.jinuo.kiosk.ui.theme.Cream
 import com.jinuo.kiosk.ui.theme.Fraunces
@@ -130,10 +131,10 @@ internal fun BoxScope.CartDrawerBody(
                 fontSize = 18.sp,
                 color = Muted,
             )
-            // v15.5 · limit hint shown when the 3-item cap is reached
-            if (count >= 3) {
+            // v24 · limit hint reads the configurable cap (backend-ready).
+            if (count >= KioskConfig.cartItemLimit) {
                 Text(
-                    "Maximum 3 items per order",
+                    "Maximum ${KioskConfig.cartItemLimit} items per order",
                     modifier = Modifier.offset(470.dp, 92.dp).size(390.dp, 26.dp),
                     fontFamily = InstrumentSans, fontWeight = FontWeight.W600,
                     fontSize = 18.sp, color = com.jinuo.kiosk.ui.theme.PriceRed,

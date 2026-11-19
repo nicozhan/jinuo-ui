@@ -2,6 +2,7 @@ package com.jinuo.kiosk.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
+import com.jinuo.kiosk.data.KioskConfig
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -63,17 +64,24 @@ fun KioskApp(
     var cartPulse by remember { mutableStateOf(0) }
     val lang = langByCode(langCode)
 
-    // v15.5 · cart is capped at 3 distinct product lines (matches the 3-row
-    // order layout). Exceeding it is rejected with a visible prompt.
-    val maxCartItems = 3
+    // v24 · single configurable cap (backend-ready via KioskConfig). The limit
+    // counts TOTAL items (sum of quantities), so once reached no add / "+" is
+    // allowed — not even on an existing line. Every threshold reads this value.
     var cartLimitHint by remember { mutableStateOf(false) }
 
+    fun showCartLimitToast() {
+        cartLimitHint = true
+        Toast.makeText(
+            context,
+            "Cart limit reached · maximum ${KioskConfig.cartItemLimit} items per order",
+            Toast.LENGTH_SHORT,
+        ).show()
+    }
+
     fun addToCart(item: CartItem) {
-        if (cart.size >= maxCartItems &&
-            cart.none { it.product.id == item.product.id && it.selections == item.selections }
-        ) {
-            cartLimitHint = true
-            Toast.makeText(context, "Cart limit reached · maximum 3 items per order", Toast.LENGTH_SHORT).show()
+        // Reject if adding this item would exceed the configured total cap.
+        if (cartCount + item.qty > KioskConfig.cartItemLimit) {
+            showCartLimitToast()
             return
         }
         val idx = cart.indexOfFirst { it.product.id == item.product.id && it.selections == item.selections }
@@ -84,6 +92,12 @@ fun KioskApp(
 
     fun changeQty(index: Int, delta: Int) {
         if (index !in cart.indices) return
+        // Increasing quantity past the total cap is blocked; decreasing/removing
+        // is always allowed so the user can free a slot.
+        if (delta > 0 && cartCount + delta > KioskConfig.cartItemLimit) {
+            showCartLimitToast()
+            return
+        }
         val next = cart[index].qty + delta
         if (next <= 0) cart.removeAt(index) else cart[index] = cart[index].copy(qty = next)
         cartPulse++
