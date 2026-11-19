@@ -58,6 +58,9 @@ fun KioskApp(
 
     val cartCount = cart.sumOf { it.qty }
     val cartTotal = cart.sumOf { it.lineTotal }
+    // v23 · bumps on every add / qty change so the shopping cart bar can replay
+    // its badge + bar pulse (mirrors the HTML flashCart() trigger).
+    var cartPulse by remember { mutableStateOf(0) }
     val lang = langByCode(langCode)
 
     // v15.5 · cart is capped at 3 distinct product lines (matches the 3-row
@@ -76,12 +79,14 @@ fun KioskApp(
         val idx = cart.indexOfFirst { it.product.id == item.product.id && it.selections == item.selections }
         if (idx >= 0) cart[idx] = cart[idx].copy(qty = cart[idx].qty + item.qty)
         else cart.add(item)
+        cartPulse++
     }
 
     fun changeQty(index: Int, delta: Int) {
         if (index !in cart.indices) return
         val next = cart[index].qty + delta
         if (next <= 0) cart.removeAt(index) else cart[index] = cart[index].copy(qty = next)
+        cartPulse++
     }
 
     fun askHomeConfirm() { showHomeConfirm = true }
@@ -115,7 +120,12 @@ fun KioskApp(
 
     // --- cart sheet ---------------------------------------------------------
     fun openCart() { cartOpen = true }
-    fun closeCart() { cartOpen = false }
+    fun closeCart() {
+        cartOpen = false
+        // v23 · replay the bar pulse when the sheet closes and the strip becomes
+        // visible again (mirrors the HTML flashPending-on-boot behaviour).
+        if (cartCount > 0) cartPulse++
+    }
     fun goPay() {
         cartOpen = false
         payAmount = if (cartTotal > 0) cartTotal else 8.0
@@ -144,7 +154,7 @@ fun KioskApp(
                 initialProductId = "americano",
                 startWithModal = false,
                 langLabel = lang.label, langFlag = lang.flag,
-                cartCount = cartCount, cartTotal = cartTotal,
+                cartCount = cartCount, cartTotal = cartTotal, cartPulse = cartPulse,
                 onAddToCart = { addToCart(it) },
                 onCheckout = { openCart() },
                 onCartClick = { openCart() },
@@ -156,7 +166,7 @@ fun KioskApp(
                 initialProductId = s.productId,
                 startWithModal = true,
                 langLabel = lang.label, langFlag = lang.flag,
-                cartCount = cartCount, cartTotal = cartTotal,
+                cartCount = cartCount, cartTotal = cartTotal, cartPulse = cartPulse,
                 onAddToCart = { addToCart(it) },
                 onCheckout = { openCart() },
                 onCartClick = { openCart() },

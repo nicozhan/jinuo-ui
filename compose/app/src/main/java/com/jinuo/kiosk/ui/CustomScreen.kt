@@ -1,5 +1,6 @@
 package com.jinuo.kiosk.ui
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
@@ -164,6 +167,7 @@ fun CustomScreen(
     langFlag: String = "\uD83C\uDDEC\uD83C\uDDE7",
     cartCount: Int = 0,
     cartTotal: Double = 0.0,
+    cartPulse: Int = 0,
     onAddToCart: (CartItem) -> Unit = {},
     onCheckout: () -> Unit = {},
     onCartClick: () -> Unit = {},
@@ -223,7 +227,15 @@ fun CustomScreen(
             )
         } else if (cartCount > 0) {
             // floating cart bar (v14: 04-shopping shows a "View Cart" strip)
-            CartBar(count = cartCount, total = cartTotal, onClick = onCartClick)
+            // v23: `key(pulse)` remounts the bar on every add / qty change so the
+            // badge + bar pulse restarts from zero. Only the very first mount
+            // (pulse == 0) plays the slide-up entry animation.
+            key(cartPulse) {
+                CartBar(
+                    count = cartCount, total = cartTotal,
+                    animateIn = cartPulse == 0, onClick = onCartClick,
+                )
+            }
         }
     }
 }
@@ -765,34 +777,152 @@ internal fun CtaButton(x: Float, label: String, background: androidx.compose.ui.
     }
 }
 
-/** v14 floating cart strip on 04-shopping (90,1659 900x96). */
+/**
+ * v23 · floating cart strip on 04-shopping (90,1659 900x96), matched to the
+ * reference HTML (pages/04-shopping.html + refine.css) both visually and in
+ * motion:
+ *   - deep-red fill rgba(160,0,45,.75), Tim-Hortons cup art at the left,
+ *     brown (#C07A3E) round qty badge with a white number, "View Cart" label,
+ *     price and a brown arrow chip — all at the Figma pixel coordinates.
+ *   - ENTRY: slides up 190px + fades in (.34s) the first time the cart becomes
+ *     non-empty (CSS `.k-cart-empty` transform/opacity transition).
+ *   - PULSE: on every add / qty change the badge scales 1→1.75→.94→1.5→1 and
+ *     turns gold (#FFE7A6) with a glow, while the bar grows a 6px gold ring —
+ *     `@keyframes k-cart-pulse` / `k-bar-pulse`, .8s × 2, ease-in-out.
+ */
 @Composable
-internal fun CartBar(count: Int, total: Double, onClick: () -> Unit) {
+internal fun CartBar(count: Int, total: Double, animateIn: Boolean = false, onClick: () -> Unit) {
+    val gold = androidx.compose.ui.graphics.Color(0xFFFFE7A6)
+    val glowGold = androidx.compose.ui.graphics.Color(0xFFFFD166)
+    val redFill = androidx.compose.ui.graphics.Color(0xBFA0002D)  // rgba(160,0,45,.75)
+    val brown = androidx.compose.ui.graphics.Color(0xFFC07A3E)
+
+    // The caller remounts this composable with key(pulse), so each fresh
+    // instance drives p 0→1 once. A frame loop in LaunchedEffect guarantees
+    // recombination on every tick (this Compose version's animateFloatAsState
+    // has no initialValue and would skip the first animation).
+    var p by remember { mutableStateOf(0f) }
+    LaunchedEffect(Unit) {
+        val frames = 40
+        for (f in 0..frames) {
+            p = f / frames.toFloat()
+            delay(40)   // ~1.6s total
+        }
+    }
+    // CSS runs the .8s keyframes twice; fold the 1.6s timeline into one cycle.
+    val t = (p * 2f) % 1f
+    // @keyframes k-cart-pulse: 0:1, .22:1.75, .46:.94, .70:1.5, 1:1
+    val badgeScale = cartKeyScale(t)
+    // gold at the two peaks (.22 / .70), white at 0/.46/1
+    val goldMix = cartKeyGold(t)
+    // @keyframes k-bar-pulse: ring 0 at 0/1, full at .30/.70
+    val barRing = cartRing(t)
+
+    // entry: only on the first mount (pulse == 0); pulse remounts start at 1.
+    var entry by remember { mutableStateOf(if (animateIn) 0f else 1f) }
+    LaunchedEffect(Unit) {
+        if (!animateIn) return@LaunchedEffect
+        for (f in 0..12) {
+            entry = (f / 12f) * (f / 12f) * (3f - 2f * (f / 12f)) // ease-out
+            delay(28)   // ~340ms
+        }
+        entry = 1f
+    }
+
     Box(
-        modifier = Modifier.offset(90.dp, 1659.dp).size(900.dp, 96.dp)
+        modifier = Modifier
+            .offset(90.dp, (1659f + 190f * (1f - entry)).dp)
+            .size(900.dp, 96.dp)
+            .alpha(entry)
+            .shadow(24.dp, RoundedCornerShape(16.dp), spotColor = androidx.compose.ui.graphics.Color(0x801D130C))
+            .drawBehind {
+                if (barRing > 0.001f) {
+                    drawRoundRect(
+                        color = glowGold.copy(alpha = 0.55f * barRing),
+                        topLeft = androidx.compose.ui.geometry.Offset(-6.dp.toPx(), -6.dp.toPx()),
+                        size = androidx.compose.ui.geometry.Size(
+                            size.width + 12.dp.toPx(), size.height + 12.dp.toPx()
+                        ),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(20.dp.toPx()),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(6.dp.toPx()),
+                    )
+                }
+            }
             .clip(RoundedCornerShape(16.dp))
-            .background(androidx.compose.ui.graphics.Color(0xBF000000))
+            .background(redFill)
+            .border(1.48.dp, androidx.compose.ui.graphics.Color(0x1A3A2A1E), RoundedCornerShape(16.dp))
             .clickable { onClick() },
     ) {
+        // cup art: f253 at (0,0) inside f252 (21.48,-2) — 76x100, cropped
+        Image(
+            painter = painterResource(R.drawable.cart_cup),
+            contentDescription = null,
+            modifier = Modifier.offset(21.dp, (-2).dp).size(76.dp, 100.dp),
+            contentScale = ContentScale.Crop,
+        )
+        // "View Cart" — f255 relative (111.48,35.5) 149x25, Fraunces 32 w600 white
         Text(
             "View Cart",
-            modifier = Modifier.offset(48.dp, 28.dp).size(400.dp, 44.dp),
-            fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 32.sp, color = Cream,
+            modifier = Modifier.offset(111.dp, 28.dp).size(220.dp, 44.dp),
+            fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 32.sp,
+            color = Cream,
         )
+        // price — f259 relative (711.52,35.5) 103x25; keep clear of the arrow chip
         Text(
-            "($count)  " + money(total),
-            modifier = Modifier.offset(430.dp, 30.dp).size(340.dp, 40.dp),
-            fontFamily = Fraunces, fontSize = 30.sp, color = Cream,
-            textAlign = TextAlign.End,
+            money(total),
+            modifier = Modifier.offset(690.dp, 30.dp).size(132.dp, 40.dp),
+            fontFamily = Fraunces, fontWeight = FontWeight.W600, fontSize = 27.sp,
+            color = Cream, textAlign = TextAlign.End,
         )
+        // arrow chip — f261 relative (742.52,24) 48x48 radius14 brown
         Box(
-            modifier = Modifier.offset(810.dp, 24.dp).size(48.dp, 48.dp)
-                .clip(RoundedCornerShape(14.dp)).background(Caramel),
+            modifier = Modifier.offset(832.dp, 24.dp).size(48.dp, 48.dp)
+                .clip(RoundedCornerShape(14.dp)).background(brown),
             contentAlignment = Alignment.Center,
         ) {
             Text("→", fontFamily = InstrumentSans, fontSize = 30.sp, color = Cream)
         }
+        // qty badge — f264 relative (65,-6) 40x40 brown circle, white Fraunces 32
+        Box(
+            modifier = Modifier.offset(65.dp, (-6).dp).size(40.dp, 40.dp)
+                .graphicsLayer {
+                    scaleX = badgeScale; scaleY = badgeScale
+                    transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0.5f)
+                }
+                .shadow(8.dp, CircleShape, spotColor = glowGold.copy(alpha = 0.9f * goldMix))
+                .clip(CircleShape).background(brown),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                count.toString(),
+                fontFamily = Fraunces, fontSize = 28.sp,
+                color = if (goldMix > 0.5f) gold else Cream,
+            )
+        }
     }
+}
+
+/** Piecewise-linear interpolation of the CSS k-cart-pulse scale keyframes. */
+private fun cartKeyScale(t: Float): Float = when {
+    t < 0.22f -> 1f + 0.75f * (t / 0.22f)
+    t < 0.46f -> 1.75f + (0.94f - 1.75f) * ((t - 0.22f) / 0.24f)
+    t < 0.70f -> 0.94f + (1.5f - 0.94f) * ((t - 0.46f) / 0.24f)
+    else -> 1.5f + (1f - 1.5f) * ((t - 0.70f) / 0.30f)
+}
+
+/** 0=white, 1=gold at the two pulse peaks. */
+private fun cartKeyGold(t: Float): Float = when {
+    t < 0.22f -> t / 0.22f
+    t < 0.46f -> 1f - (t - 0.22f) / 0.24f
+    t < 0.70f -> (t - 0.46f) / 0.24f
+    else -> 1f - (t - 0.70f) / 0.30f
+}
+
+/** 0→1 ring at 30%, hold to 70%, back to 0 (HTML k-bar-pulse). */
+private fun cartRing(t: Float): Float = when {
+    t < 0.30f -> t / 0.30f
+    t < 0.70f -> 1f
+    else -> 1f - (t - 0.70f) / 0.30f
 }
 
 @Composable
