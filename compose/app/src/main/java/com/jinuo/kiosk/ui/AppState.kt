@@ -37,6 +37,7 @@ sealed class Screen {
     data object Wrong : Screen()         // 15-wrong
     data object PaySuccess : Screen()    // 16-pay
     data object Making : Screen()        // 17-making
+    data object Pickup : Screen()        // 17b-pickup — "please collect your drink"
     data object Ready : Screen()         // 18-ready
     data object OrderConfirm : Screen()  // 19-order-confirm
 }

@@ -31,6 +31,8 @@ fun KioskApp(
     initialHelp: Boolean = false,
     initialLangOpen: Boolean = false,
     initialLangAnchor: Pair<Float, Float> = Pair(66f, 1380f),
+    initialCup: Int = 1,
+    initialTotal: Int = 2,
 ) {
     val context = LocalContext.current
     var screen by remember { mutableStateOf<Screen>(initialScreen) }
@@ -56,6 +58,9 @@ fun KioskApp(
     var showHomeConfirm by remember { mutableStateOf(false) }
     var payAmount by remember { mutableStateOf<Double>(8.0) }
     var brewStage by remember { mutableStateOf(1) }   // v15.5 · states 1..4
+    // v26 · multi-drink serial flow: which cup we are on and how many total.
+    var currentCup by remember { mutableStateOf(initialCup.coerceAtLeast(1)) }
+    var totalCups by remember { mutableStateOf(initialTotal.coerceAtLeast(1)) }
 
     val cartCount = cart.sumOf { it.qty }
     val cartTotal = cart.sumOf { it.lineTotal }
@@ -146,6 +151,15 @@ fun KioskApp(
         screen = Screen.OrderConfirm
     }
 
+    // --- v26 · multi-drink brew flow ---------------------------------------
+    /** Begin the serial brew: one cup at a time, driven by the real cart size. */
+    fun startBrewing() {
+        totalCups = cartCount.coerceAtLeast(1)
+        currentCup = 1
+        brewStage = 1
+        screen = Screen.Making
+    }
+
     Box(Modifier.fillMaxSize()) {
         // ---- base page -----------------------------------------------------
         when (val s = screen) {
@@ -218,13 +232,29 @@ fun KioskApp(
                 onBack = { askHomeConfirm() },
                 onLang = { openLang(700f, 155f) },
                 onHelp = { helpOpen = true },
-                onContinue = { brewStage = 1; screen = Screen.Making },
+                onContinue = { startBrewing() },
             )
 
             is Screen.Making -> MakingScreen(
                 stage = brewStage.coerceIn(1, 4),
+                cup = currentCup,
+                total = totalCups,
                 onDone = {
-                    if (brewStage < 4) brewStage += 1 else screen = Screen.Ready
+                    if (brewStage < 4) brewStage += 1 else screen = Screen.Pickup
+                },
+            )
+
+            is Screen.Pickup -> PickupScreen(
+                cup = currentCup,
+                total = totalCups,
+                onPickedUp = {
+                    if (currentCup < totalCups) {
+                        currentCup += 1
+                        brewStage = 1
+                        screen = Screen.Making
+                    } else {
+                        screen = Screen.Ready
+                    }
                 },
             )
 

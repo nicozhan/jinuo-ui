@@ -398,6 +398,8 @@ private val GRADIENT = Brush.horizontalGradient(
 fun MakingScreen(
     modifier: Modifier = Modifier,
     stage: Int = 0,
+    cup: Int = 1,
+    total: Int = 1,
     onDone: () -> Unit = {},
 ) {
     Artboard(modifier = modifier) {
@@ -410,7 +412,7 @@ fun MakingScreen(
         Image(painterResource(R.drawable.kiosk_logo), "Jinuo Coffee",
             Modifier.offset(433.dp, 98.dp).size(213.dp, 80.dp), contentScale = ContentScale.Fit)
 
-        Text("Preparing your coffee…",
+        Text("Preparing drink $cup of $total…",
             modifier = Modifier.offset(64.dp, 226.dp).size(952.dp, 52.dp),
             fontFamily = Fraunces, fontWeight = FontWeight.W600,
             fontSize = 40.sp, letterSpacing = 0.4.sp, color = Ink)
@@ -440,6 +442,81 @@ fun MakingScreen(
 
         // entire artboard is a single left-click target (mirrors the HTML skip/auto flow)
         Box(Modifier.size(ART_W, ART_H).clickable { onDone() })
+    }
+}
+
+/**
+ * v26 · pickup prompt shown after each cup finishes. Prominent "collect your
+ * drink" message with the cup number. The board waits for a tap, which stands
+ * in for the machine's cup-removed sensor; the parent then brews the next cup
+ * or ends the flow. Kept product-agnostic and all English.
+ */
+@Composable
+fun PickupScreen(
+    modifier: Modifier = Modifier,
+    cup: Int = 1,
+    total: Int = 2,
+    onPickedUp: () -> Unit = {},
+) {
+    Artboard(modifier = modifier) {
+        StatusText("MACHINE ID · JAV-08-221", 64f, 300f)
+        StatusText("SUPPORT · +86 400 820 2006", 443f, 272f)
+        StatusText("TIME · 14:06", 865f, 151f)
+        Box(Modifier.offset(0.dp, 66.dp).size(ART_W, 1.dp).background(Hairline))
+
+        Image(painterResource(R.drawable.kiosk_logo), "Jinuo Coffee",
+            Modifier.offset(433.dp, 98.dp).size(213.dp, 80.dp), contentScale = ContentScale.Fit)
+
+        Text("DRINK $cup READY",
+            modifier = Modifier.offset(64.dp, 226.dp).size(952.dp, 60.dp),
+            fontFamily = Fraunces, fontWeight = FontWeight.W600,
+            fontSize = 48.sp, letterSpacing = 0.5.sp, color = Ink)
+        Text("Please collect your drink",
+            modifier = Modifier.offset(64.dp, 292.dp).size(952.dp, 50.dp),
+            fontFamily = InstrumentSans, fontSize = 40.sp,
+            color = Muted.copy(alpha = 0.8f))
+
+        // large check-in-circle success mark
+        androidx.compose.foundation.Canvas(
+            modifier = Modifier.offset(390.dp, 560.dp).size(300.dp, 300.dp)
+        ) {
+            val r = size.minDimension / 2f
+            drawCircle(color = Caramel.copy(alpha = 0.14f), radius = r)
+            drawCircle(color = Caramel, radius = r - 4f,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 12f))
+            // check mark = two joined lines (avoids version-specific Path API)
+            drawLine(Caramel,
+                start = androidx.compose.ui.geometry.Offset(size.width * 0.30f, size.height * 0.52f),
+                end = androidx.compose.ui.geometry.Offset(size.width * 0.45f, size.height * 0.66f),
+                strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            drawLine(Caramel,
+                start = androidx.compose.ui.geometry.Offset(size.width * 0.45f, size.height * 0.66f),
+                end = androidx.compose.ui.geometry.Offset(size.width * 0.71f, size.height * 0.37f),
+                strokeWidth = 16f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        }
+
+        Text("Drink $cup of $total is ready",
+            modifier = Modifier.offset(64.dp, 940.dp).size(952.dp, 60.dp),
+            fontFamily = Fraunces, fontWeight = FontWeight.W600,
+            fontSize = 46.sp, color = Ink, textAlign = TextAlign.Center)
+        Text("Remove the cup to continue",
+            modifier = Modifier.offset(64.dp, 1010.dp).size(952.dp, 48.dp),
+            fontFamily = InstrumentSans, fontSize = 32.sp,
+            color = Muted, textAlign = TextAlign.Center)
+
+        Box(Modifier.offset(140.dp, 1650.dp).size(800.dp, 100.dp)
+            .clip(RoundedCornerShape(24.dp)).background(Ink),
+            contentAlignment = Alignment.Center) {
+            Text(
+                if (cup < total) "Tap to confirm pickup · Next drink will start"
+                else "Tap to confirm pickup · Final drink",
+                fontFamily = InstrumentSans, fontWeight = FontWeight.W600,
+                fontSize = 28.sp, color = Cream,
+            )
+        }
+
+        // entire artboard is a single tap target (stands in for the cup sensor)
+        Box(Modifier.size(ART_W, ART_H).clickable { onPickedUp() })
     }
 }
 
@@ -541,7 +618,10 @@ fun ReadyScreen(
 @Composable private fun PreviewWrong() { com.jinuo.kiosk.ui.theme.KioskTheme { WrongScreen() } }
 
 @androidx.compose.ui.tooling.preview.Preview(name = "17 Making", widthDp = 540, heightDp = 960, showBackground = true)
-@Composable private fun PreviewMaking() { com.jinuo.kiosk.ui.theme.KioskTheme { MakingScreen() } }
+@Composable private fun PreviewMaking() { com.jinuo.kiosk.ui.theme.KioskTheme { MakingScreen(cup = 1, total = 2) } }
+
+@androidx.compose.ui.tooling.preview.Preview(name = "17b Pickup", widthDp = 540, heightDp = 960, showBackground = true)
+@Composable private fun PreviewPickup() { com.jinuo.kiosk.ui.theme.KioskTheme { PickupScreen(cup = 1, total = 2) } }
 
 @androidx.compose.ui.tooling.preview.Preview(name = "18 Ready", widthDp = 540, heightDp = 960, showBackground = true)
 @Composable private fun PreviewReady() { com.jinuo.kiosk.ui.theme.KioskTheme { ReadyScreen() } }

@@ -45,7 +45,9 @@ class MainActivity : ComponentActivity() {
                 KioskTheme {
                     // Optional debug deep-link: `am start --es screen <name> [--ez cart true]`
                     // Names: home | lang | help | shopping | custom | cart |
-                    //        orderconfirm | cardpay | wrong | paysuccess | making | ready.
+                    //        orderconfirm | cardpay | wrong | paysuccess | making | pickup | ready.
+                    // Optional --ei cup <n> --ei total <m> to inspect a specific
+                    // cup in the multi-drink brew/pickup flow.
                     // help/cart/language are global overlays; deep links open them
                     // over the shopping page so the real UX can be inspected.
                     val screenExtra = intent?.getStringExtra("screen")
@@ -60,9 +62,12 @@ class MainActivity : ComponentActivity() {
                         "wrong" -> Screen.Wrong
                         "paysuccess" -> Screen.PaySuccess
                         "making" -> Screen.Making
+                        "pickup" -> Screen.Pickup
                         "ready" -> Screen.Ready
                         else -> Screen.Home
                     }
+                    val debugCup = intent?.getIntExtra("cup", 1) ?: 1
+                    val debugTotal = intent?.getIntExtra("total", 2) ?: 2
                     KioskApp(
                         initialScreen = start,
                         initialCart = screenExtra == "cart" ||
@@ -72,6 +77,8 @@ class MainActivity : ComponentActivity() {
                         initialLangAnchor = if (screenExtra == "shopping") Pair(480f, 155f)
                             else if (screenExtra == "custom") Pair(765f, 155f)
                             else Pair(66f, 1380f),
+                        initialCup = debugCup,
+                        initialTotal = debugTotal,
                     )
                 }
             }
