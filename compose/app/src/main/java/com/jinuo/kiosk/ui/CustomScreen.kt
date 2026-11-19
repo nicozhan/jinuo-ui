@@ -316,8 +316,11 @@ internal fun KioskBackground(
     TopPill(x = 755f, text = "Help", withFlag = false, onClick = onHelp)
 
     // banner y = 132..492 — v22: fades out on collapse (never restored)
+    // v30: promotional 1910 "1re/2e boisson" artwork (1920x640, 3:1, same as
+    // the 1080x360 slot). Uses its own drawable so the language page keeps its
+    // original kiosk_banner.
     Image(
-        painter = painterResource(R.drawable.kiosk_banner),
+        painter = painterResource(R.drawable.shopping_banner),
         contentDescription = null,
         modifier = Modifier.offset(0.dp, 132.dp).size(1080.dp, 360.dp)
             .alpha(1f - collapse),
