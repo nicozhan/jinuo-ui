@@ -1,5 +1,8 @@
 package com.jinuo.kiosk.ui
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -382,7 +386,6 @@ private fun ErrorRings(cx: Float, cy: Float) {
 }
 
 /* ---------------------------- 17-making --------------------------------- */
-private val BREW_STEPS = listOf("01 · PREPARE", "02 · BREW", "03 · MIX", "04 · SERVE")
 private val GRADIENT = Brush.horizontalGradient(
     listOf(Color(0xFF5A4432), Color(0xFF684B34), Color(0xFF765337), Color(0xFF845B39),
         Color(0xFF93623A), Color(0xFFA26A3C), Color(0xFFB1723D), Color(0xFFC07A3E),
@@ -423,20 +426,13 @@ fun MakingScreen(
                 Modifier.size(800.dp, 800.dp), contentScale = ContentScale.Crop)
         }
 
-        // four-stage strip
-        // v15.5 · four states (1/4 … 4/4). The whole board is one left-click
-    // target: each tap advances exactly one stage, the 4th enters 18-ready.
-        Text(
-            "PREPARING YOUR CUP · $stage/4",
-            modifier = Modifier.offset(64.dp, 1656.dp).size(952.dp, 34.dp),
-            fontFamily = InstrumentSans, fontWeight = FontWeight.W600,
-            fontSize = 24.sp, letterSpacing = 2.4.sp, color = Muted,
-            textAlign = TextAlign.Center,
-        )
-        BrewStrip(stage = stage, filled = false)
+        // v25 · single continuous progress bar, fills left → right with a live
+        // percentage. Step names removed so the flow is product-agnostic.
+        // The whole board is one left-click target; each tap advances one stage.
+        ProgressBar(stage = stage)
 
         Text(
-            "Tap anywhere to advance  ·  $stage of 4",
+            "Tap anywhere to advance",
             modifier = Modifier.offset(0.dp, 1830.dp).fillMaxWidth(),
             fontFamily = InstrumentSans, fontSize = 20.sp, color = Muted.copy(alpha = 0.7f),
             textAlign = TextAlign.Center,
@@ -447,22 +443,43 @@ fun MakingScreen(
     }
 }
 
+/**
+ * v25 · continuous progress bar. Fills from left to right in sync with [stage]
+ * (1..4 → 25/50/75/100%) and shows the live percentage. No product-specific
+ * step labels, so the same flow works for non-coffee items.
+ */
 @Composable
-internal fun BrewStrip(stage: Int, filled: Boolean) {
-    Row(Modifier.offset(64.dp, 1705.dp).size(952.dp, 120.dp)) {
-        BREW_STEPS.forEachIndexed { i, label ->
-            Box(Modifier.size(238.dp, 120.dp)) {
-                val barOn = filled || i < stage
-                Box(Modifier.offset(0.dp, 0.dp).size(220.dp, 8.dp)
-                    .clip(RoundedCornerShape(9999.dp))
-                    .then(if (barOn) Modifier.background(GRADIENT)
-                          else Modifier.background(WarmSand)))
-                Text(label, modifier = Modifier.offset(0.dp, 20.dp).size(220.dp, 30.dp),
-                    fontFamily = InstrumentSans, fontWeight = FontWeight.W600,
-                    fontSize = 18.sp, letterSpacing = 1.2.sp, color = Muted)
-            }
-        }
-    }
+internal fun ProgressBar(stage: Int, filled: Boolean = false) {
+    val target = if (filled) 1f else (stage.coerceIn(0, 4) / 4f)
+    var animated by remember { mutableStateOf(0f) }
+    LaunchedEffect(target) { animated = target }
+    val progress by animateFloatAsState(
+        targetValue = animated,
+        animationSpec = tween(650, easing = FastOutSlowInEasing),
+        label = "brewProgress",
+    )
+    val pct = (progress * 100f).toInt()
+    val trackW = 952.dp
+    val barH = 28.dp
+
+    Text(
+        "$pct%",
+        modifier = Modifier.offset(64.dp, 1656.dp).size(952.dp, 60.dp),
+        fontFamily = Fraunces, fontWeight = FontWeight.W600,
+        fontSize = 48.sp, letterSpacing = 1.sp, color = Ink,
+        textAlign = TextAlign.Center,
+    )
+    // track (thicker than the old 8dp four-segment strip)
+    Box(
+        Modifier.offset(64.dp, 1724.dp).size(trackW, barH)
+            .clip(RoundedCornerShape(9999.dp)).background(WarmSand)
+    )
+    // fill from left → right
+    Box(
+        Modifier.offset(64.dp, 1724.dp)
+            .size((952f * progress).dp, barH)
+            .clip(RoundedCornerShape(9999.dp)).background(GRADIENT)
+    )
 }
 
 /* ---------------------------- 18-ready ---------------------------------- */
@@ -501,8 +518,8 @@ fun ReadyScreen(
                 Modifier.size(800.dp, 800.dp), contentScale = ContentScale.Crop)
         }
 
-        // four completed steps + gradient rule
-        BrewStrip(stage = 4, filled = true)
+        // full continuous progress bar (100%)
+        ProgressBar(stage = 4, filled = true)
 
         Box(Modifier.offset(64.dp, 1800.dp).size(952.dp, 90.dp)
             .clip(RoundedCornerShape(22.dp)).background(Ink)
