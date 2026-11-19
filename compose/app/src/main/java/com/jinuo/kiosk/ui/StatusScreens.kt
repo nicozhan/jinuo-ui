@@ -595,16 +595,20 @@ fun ReadyScreen(
         Image(painterResource(R.drawable.kiosk_logo), "Jinuo Coffee",
             Modifier.offset(433.dp, 98.dp).size(213.dp, 80.dp), contentScale = ContentScale.Fit)
 
+        // Header block re-aligned to the page centre axis (x=540), matching
+        // the image / progress bar / CTA below and the original Figma layout.
+        // Previously these two lines were left-aligned at x=64 while every
+        // other element was centred — the only off-axis elements on the page.
         Text("YOUR COFFEE IS READY",
-            modifier = Modifier.offset(64.dp, 200.dp).size(952.dp, 53.dp),
+            modifier = Modifier.offset(64.dp, 211.dp).size(952.dp, 53.dp),
             fontFamily = Fraunces, fontWeight = FontWeight.W600,
             fontSize = 50.sp, letterSpacing = 0.5.sp,
-            color = Ink.copy(alpha = 0.36f))
+            color = Ink.copy(alpha = 0.36f), textAlign = TextAlign.Center)
         Text("Please collect your cup",
-            modifier = Modifier.offset(64.dp, 260.dp).size(952.dp, 45.dp),
+            modifier = Modifier.offset(64.dp, 277.dp).size(952.dp, 45.dp),
             fontFamily = InstrumentSans, fontSize = 40.sp,
-            color = Muted.copy(alpha = 0.6f))
-        Box(Modifier.offset(248.dp, 312.dp).size(584.dp, 8.dp)
+            color = Muted.copy(alpha = 0.6f), textAlign = TextAlign.Center)
+        Box(Modifier.offset(260.dp, 342.dp).size(560.dp, 8.dp)
             .clip(RoundedCornerShape(9999.dp)).background(GRADIENT))
 
         // brew photo 140,626 800x800 (matches Figma nested offset)
