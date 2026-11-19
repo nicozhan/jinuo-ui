@@ -1,5 +1,9 @@
 package com.jinuo.kiosk.ui
 
+import kotlinx.coroutines.flow.collect
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,8 +37,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -262,6 +268,25 @@ internal fun KioskBackground(
         gridState.animateScrollToItem(i)
     }
 
+    /* v22 · banner collapse. Once true it NEVER goes back: picking any category
+       OR scrolling the product list fades the 360px ad banner out and slides the
+       category bar + grid up by 360px to fill the freed space (grid grows 360px
+       taller so its bottom still lands at y=1920). 0 = expanded, 1 = collapsed. */
+    var bannerCollapsed by remember { mutableStateOf(false) }
+    val collapse by animateFloatAsState(
+        targetValue = if (bannerCollapsed) 1f else 0f,
+        animationSpec = tween(durationMillis = 380, easing = FastOutSlowInEasing),
+        label = "bannerCollapse",
+    )
+    // Any real scroll of the product grid collapses the banner for good.
+    LaunchedEffect(Unit) {
+        snapshotFlow { gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset }
+            .collect { (idx, offset) ->
+                if (idx > 0 || offset > 8) bannerCollapsed = true
+            }
+    }
+    val bannerSlide = 360f * collapse
+
     // status row y = 0..66
     StatusText("MACHINE ID · JAV-08-221", 64f, 280f)
     StatusText("SUPPORT · +86 400 820 2006", 359f, 340f)
@@ -278,17 +303,19 @@ internal fun KioskBackground(
     TopPill(x = 485f, text = langLabel, flag = langFlag, onClick = onLang)
     TopPill(x = 755f, text = "Help", withFlag = false, onClick = onHelp)
 
-    // banner y = 132..492
+    // banner y = 132..492 — v22: fades out on collapse (never restored)
     Image(
         painter = painterResource(R.drawable.kiosk_banner),
         contentDescription = null,
-        modifier = Modifier.offset(0.dp, 132.dp).size(1080.dp, 360.dp),
+        modifier = Modifier.offset(0.dp, 132.dp).size(1080.dp, 360.dp)
+            .alpha(1f - collapse),
         contentScale = ContentScale.Crop,
     )
 
     // category bar y = 495..559 (v17: 64px tall, was 77)
+    // v22: slides up with the banner collapse to fill the freed 360px.
     Box(
-        Modifier.offset(0.dp, 495.dp).size(1080.dp, 64.dp)
+        Modifier.offset(0.dp, (495f - bannerSlide).dp).size(1080.dp, 64.dp)
             .background(Cream)
             .border(1.dp, Hairline),
     )
@@ -296,7 +323,7 @@ internal fun KioskBackground(
     // horizontally so longer labels stay fully readable.
     val catScroll = rememberScrollState()
     Row(
-        modifier = Modifier.offset(40.dp, 496.dp).size(1000.dp, 60.dp)
+        modifier = Modifier.offset(40.dp, (496f - bannerSlide).dp).size(1000.dp, 60.dp)
             .horizontalScroll(catScroll),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -307,7 +334,11 @@ internal fun KioskBackground(
             Box(
                 modifier = Modifier
                     .size(w.dp, 60.dp)
-                    .clickable { onCategory(label); scrollTarget = label },
+                    .clickable {
+                        onCategory(label)
+                        scrollTarget = label
+                        bannerCollapsed = true   // v22: any category tap collapses banner
+                    },
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -340,7 +371,8 @@ internal fun KioskBackground(
     // column so full and short rows share the same optical axis.
     LazyColumn(
         state = gridState,
-        modifier = Modifier.offset(64.dp, 559.dp).size(952.dp, 1361.dp),
+        modifier = Modifier.offset(64.dp, (559f - bannerSlide).dp)
+            .size(952.dp, (1361f + bannerSlide).dp),
         userScrollEnabled = true,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         /* Tail space must exceed the viewport height (1361dp) minus the last
